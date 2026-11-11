@@ -32,7 +32,9 @@ Initial repository creation: local `main` and remote `main` both matched `7fc8ac
 
 Local foundation checks passed: Rust formatting, strict Clippy, 1 unit test, doctest execution (0 examples), release build, and documentation; Python Ruff formatting/lint, 2 unit tests, and compilation. Local Python was 3.13.16; the hosted matrix covers 3.12 and 3.14. No scientific memory experiment has run.
 
-Hosted CI must be verified for the current commit after pushing; consult the [Actions history](https://github.com/Cognis-11-Inc/qr-neural-memory-system/actions/workflows/ci.yml) rather than interpreting local checks as hosted evidence. No branch protection or required-check policy has been configured.
+Hosted [Severe CI run 43101324092](https://github.com/Cognis-11-Inc/qr-neural-memory-system/actions/runs/43101324092) passed all three jobs (Rust, Python 3.12, Python 3.14) for foundation commit `102ff79be42b7309100f5f5abf9f16cbb3eda4a5`. Local and remote `main` matched that commit and the worktree was clean before this verification note was added.
+
+Recheck hosted CI for later commits through the [Actions history](https://github.com/Cognis-11-Inc/qr-neural-memory-system/actions/workflows/ci.yml). No branch protection or required-check policy has been configured.
 
 ## Next bounded research step
 
