@@ -1,0 +1,19 @@
+# Rust build output
+/target/
+**/*.rs.bk
+
+# Local environment and credentials
+.env
+.env.*
+!.env.example
+
+# Desktop and editor metadata
+.directory
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# Local experimental output
+/results/
+/checkpoints/
