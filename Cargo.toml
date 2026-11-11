@@ -1,0 +1,14 @@
+[package]
+name = "qr-neural-memory-system"
+version = "0.1.0"
+edition = "2024"
+publish = false
+description = "Experimental QR-inspired memory substrate"
+
+[lints.rust]
+unsafe_code = "forbid"
+missing_docs = "deny"
+
+[lints.clippy]
+all = "deny"
+pedantic = "deny"

@@ -17,3 +17,10 @@ Thumbs.db
 # Local experimental output
 /results/
 /checkpoints/
+
+# Python local tooling
+__pycache__/
+*.py[cod]
+.venv/
+.ruff_cache/
+*.egg-info/
