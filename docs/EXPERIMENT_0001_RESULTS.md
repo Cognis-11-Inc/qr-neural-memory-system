@@ -179,8 +179,11 @@ Local checks passed: Rust formatting, strict Clippy, nine Rust tests, doctest
 execution (zero examples), release build and rustdoc with warnings denied;
 Python Ruff format/lint, four unit tests and byte compilation. Byte-identical
 full-run replay and independent raw-evidence checks are separate from those tests.
-Hosted CI must be checked against the final pushed commit; local checks alone
-are not hosted evidence.
+Implementation commit `0771a593df9e124a23e42b99ddb7409c4d87d2c7` was pushed;
+[hosted CI 43256152047](https://github.com/Cognis-11-Inc/qr-neural-memory-system/actions/runs/43256152047)
+passed Rust and Python 3.12/3.14 jobs. This note is a subsequent documentation
+change; check the Actions history for later commits separately. CI validates
+software checks, not successful associative retrieval.
 
 Use the README run/analyze commands with a fresh directory. Snapshots and raw
 outputs are ignored by Git under `results/`. The runner exports exact parameters,

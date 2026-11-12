@@ -103,8 +103,12 @@ Same-machine/toolchain replay only; no cross-platform bit-identity claim.
 Final local checks passed: Rust formatting, strict Clippy,
 9 Rust tests, doctest execution (0 examples), release build and documentation;
 Python Ruff formatting/lint, 4 unit tests and compilation. Document links and
-diff whitespace checks also passed. Hosted CI is separate and must be verified
-for a pushed commit. Prior repository checkpoints include foundation `102ff79`,
+diff whitespace checks also passed. Implementation commit
+`0771a593df9e124a23e42b99ddb7409c4d87d2c7` was pushed and remote `main` matched;
+[hosted CI 43256152047](https://github.com/Cognis-11-Inc/qr-neural-memory-system/actions/runs/43256152047)
+passed all three jobs (Rust, Python 3.12, Python 3.14). This delivery note changes
+documentation only; recheck the current commit's CI on resumption. Prior
+repository checkpoints include foundation `102ff79`,
 Principle 001/geometry correction `130d14d`, R1 protocol `6c13c3e`, and reading-list
 import `4735898`. No required-check/branch-protection policy is configured.
 
