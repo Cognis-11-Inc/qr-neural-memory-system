@@ -88,8 +88,11 @@ Python compilation, documentation/figure links, independent numerical
 verification, complete-run byte comparison and Experiment 0001 preservation.
 Both report figures were rendered and inspected. Implementation checkpoint is
 `8a0f5b4` following frozen registration `f3167f1`; measured results are recorded
-in a separate documentation commit. Push/hosted CI remain separate evidence
-and must be checked against the delivered SHA.
+in a separate documentation commit. Delivery `3ca5f25722eb6643e2275178d4cabf925f50d36b`
+was pushed and remote `main` matched. [Hosted CI 43264716126](https://github.com/Cognis-11-Inc/qr-neural-memory-system/actions/runs/43264716126)
+passed all three jobs (Rust, Python 3.12, Python 3.14). This verification note is
+documentation only; check CI for later commits separately. Software CI does not
+change the negative T or indeterminate R scientific outcome.
 
 Next falsification: separately register finer integration/frequency resolution,
 longer-window sensitivity and a coupling/damping transport grid. Do not tune

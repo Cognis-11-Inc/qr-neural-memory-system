@@ -293,6 +293,9 @@ numerical verification, full-run byte comparison, and frozen Experiment 0001
 preservation checks. Both figures were rendered and inspected.
 
 Implementation checkpoint: `8a0f5b4`, following preregistration `f3167f1`.
-Measured results and the progression index are delivered in a separate
-documentation commit. Push and hosted CI status must be verified against the
-delivered SHA; neither is a substitute for the measured scientific criteria.
+Measured results and the progression index were pushed as
+`3ca5f25722eb6643e2275178d4cabf925f50d36b`; remote `main` matched.
+[Hosted CI 43264716126](https://github.com/Cognis-11-Inc/qr-neural-memory-system/actions/runs/43264716126)
+passed Rust and Python 3.12/3.14 jobs. This verification note is a subsequent
+documentation change; check later commits' CI separately. None of these software
+checks changes the scientific decisions above.
