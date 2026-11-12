@@ -2,7 +2,7 @@
 
 ## Rehydrate first
 
-Read this file, `HANDOFF.md`, `README.md`, and `PRINCIPLES.md`, then inspect `git status`, the current branch, and recent commits before editing. Preserve existing user work. Recheck recorded facts against the checkout; a handoff is not live evidence.
+Read this file, `HANDOFF.md`, `README.md`, `PRINCIPLES.md`, and `HYPOTHESES.md`, then inspect `git status`, the current branch, and recent commits before editing. Preserve existing user work. Recheck recorded facts against the checkout; a handoff is not live evidence.
 
 ## Research direction
 
@@ -10,6 +10,7 @@ Read this file, `HANDOFF.md`, `README.md`, and `PRINCIPLES.md`, then inspect `gi
 - Rust owns the substrate, state transitions, learning, propagation, persistence, and deterministic experiment execution. Python supports analysis, statistics, plots, and comparisons.
 - Begin with **4,096 computational cells**, CPU first and deterministic first. Grid dimensions, geometry, and connectivity are unspecified; do not derive them from the cell count.
 - Follow Principle 001 in `PRINCIPLES.md`: learned associations must reside in persistent, experience-dependent internal changes distributed across many neurons, with retrieval through deterministic local interactions. The activation-bit scaffold does not implement these persistent states.
+- Treat Hypothesis R1 as untested and attack it using `EXPERIMENT_R1.md`: compare random and contiguous damage, report failures, and measure capacity/interference trade-offs. Eight-neighbor connectivity is proposed; geometry is unresolved. Damage illustrations are not retrieval evidence.
 - Do not introduce conventional QR error correction, PyTorch, a conventional neural-network architecture, GPU execution, or parallel updates without an experimental reason and an explicit discussion of the design change.
 - Keep state representation separate from update and learning rules. Document boundary conditions, update order, seeds, and parameters when those mechanisms are introduced.
 - Do not claim learning, emergence, intelligence, or memory performance from scaffolding, cell counts, or successful compilation. Unexpected behavior requires controls, reproduction, and a causal investigation.

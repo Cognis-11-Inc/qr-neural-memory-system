@@ -21,6 +21,14 @@ A learned association is represented by persistent, experience-dependent changes
 
 See [PRINCIPLES.md](PRINCIPLES.md) for the design consequences.
 
+## Hypothesis R1: distributed resilience
+
+Associations encoded through overlapping, persistent changes across multiple QR neurons can remain retrievable after partial loss or corruption of the substrate.
+
+**Untested.** We will attack this hypothesis by verifying A → B retrieval, then progressively disabling neurons under matched random and contiguous regional damage. Graceful degradation is a target to test. Capacity, redundancy, and interference must be measured together. Eight-neighbor connectivity remains a proposal; geometry is unspecified.
+
+See [HYPOTHESES.md](HYPOTHESES.md) and the proposed [R1 experiment protocol](EXPERIMENT_R1.md). Damage illustrations are not measured retrieval results.
+
 ## Experiment 001: first measurable memory behavior
 
 1. Teach the substrate associations using an explicit, documented update rule.
