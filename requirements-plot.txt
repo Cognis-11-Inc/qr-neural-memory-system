@@ -1,0 +1,2 @@
+# Optional report figures; numerical verification uses the Python standard library.
+matplotlib==3.11.2

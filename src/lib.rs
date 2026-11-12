@@ -1,6 +1,7 @@
 //! QR Neural Memory research: Experiment 0001 and the original activation scaffold.
 
 pub mod experiment;
+pub mod experiment_0002;
 
 /// Number of computational cells in the initial substrate.
 pub const CELL_COUNT: usize = 4096;
