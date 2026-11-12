@@ -1,6 +1,6 @@
 # QR Neural Memory System — handoff
 
-Updated: 2026-11-11 (America/Toronto).
+Updated: 2026-11-12 (America/Toronto).
 
 ## Session starting point
 
@@ -14,13 +14,15 @@ The user requested Git setup, a repository under Cognis 11 Inc., the usual agent
 
 ## Decisions and boundaries
 
-The current target is approximately **80% Rust and 20% Python**, flexible as the research develops. Rust owns the engine and deterministic experiments; Python handles scientific analysis and visualization. Start with 4,096 binary computational cells in a 64 × 64 matrix, CPU first. QR-inspired does not mean standards-compliant QR codes or one QR image per cell.
+The current target is approximately **80% Rust and 20% Python**, flexible as the research develops. Rust owns the engine and deterministic experiments; Python handles scientific analysis and visualization. Start with **4,096 computational cells**, CPU first. The user corrected the assumed square grid: cell count stays 4,096; grid dimensions, geometry, and connectivity remain unspecified. The internal representation of a QR neuron also remains to be designed.
+
+The user authored **Principle 001**, recorded verbatim in `PRINCIPLES.md` and `README.md`: associations reside in persistent, experience-dependent changes distributed across internal neuron states, with no single neuron assigned ownership of an entire association. Retrieval must arise from deterministic interactions among these local states.
 
 The first scientific objective is association learning, retrieval from partial cues, and measurement of interference with previously learned associations. Retrieval-induced substrate change and computation beyond retrieval remain research questions. No conventional learning architecture or QR error correction is imposed.
 
 ## Current implementation
 
-- `src/lib.rs`: initial row-major binary matrix and empty-state construction. No propagation, learning, retrieval, or persistence yet.
+- `src/lib.rs`: 4,096 activation bits indexed by cell ID, without spatial meaning, and empty-state construction. The former square-grid API was replaced by `ActivationState` and `empty_activation_state`; there are no other in-repository callers. No persistent learned internal state, propagation, learning, retrieval, or persistence yet.
 - `analysis/metrics.py`: normalized binary reconstruction error, with invalid-input checks.
 - Rust test checks the 4,096-cell initial state and independent mutations. Python tests cover known reconstruction errors and invalid comparisons. These are foundation checks, not memory experiments.
 - `.github/workflows/ci.yml`: severe CI on pushes, pull requests, and manual runs. Rust formatting, strict Clippy, tests, doctests, release build, and documentation; Python 3.12/3.14 formatting, lint, tests, and compilation. Action revisions, Rust, and Ruff are pinned; workflow permissions are read-only.
@@ -36,6 +38,8 @@ Hosted [Severe CI run 43101324092](https://github.com/Cognis-11-Inc/qr-neural-me
 
 Recheck hosted CI for later commits through the [Actions history](https://github.com/Cognis-11-Inc/qr-neural-memory-system/actions/workflows/ci.yml). No branch protection or required-check policy has been configured.
 
+2026-11-12 correction: Principle 001 was added verbatim, the assumed square geometry was removed from current documentation and Rust code, and the population remains 4,096. All local severe-CI checks passed after the correction (1 Rust unit test, 2 Python unit tests; no memory experiment). Hosted CI for this correction must be checked after the push.
+
 ## Next bounded research step
 
-Specify Experiment 001 before implementing learning: the representation of an association, local neighborhood and edge behavior, synchronous versus asynchronous updates, the learning rule, cue corruption procedure, controls, and retention/interference metrics. Record parameters and deterministic input generation. Run the complete 4,096-cell substrate and retain reproducible evidence. Avoid selecting a rule merely because it produces an appealing visualization.
+Specify Experiment 001 before implementing learning: persistent internal neuron state consistent with Principle 001, geometry/connectivity, local interaction and boundary rules, synchronous versus asynchronous updates, the learning rule, cue corruption procedure, controls, and retention/interference metrics. Record parameters and deterministic input generation. Run the complete 4,096-cell substrate and retain reproducible evidence. Avoid selecting a rule merely because it produces an appealing visualization.

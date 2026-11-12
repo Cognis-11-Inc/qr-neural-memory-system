@@ -6,14 +6,20 @@ We investigate what the substrate's rules actually permit. Useful memory behavio
 
 ## Initial direction
 
-- **4,096 computational cells** arranged in a **64 × 64 mutable binary matrix**.
+- **4,096 computational cells**. Grid dimensions, geometry, and connectivity remain unspecified.
 - Approximately **80% Rust / 20% Python**, a flexible architectural target. Rust owns the engine and deterministic experiments; Python supports analysis, statistics, plots, and comparisons.
 - CPU execution and deterministic experiments first.
 - Distributed representations, local interactions, and experimentally defined plasticity.
 - No conventional QR error correction or conventional neural-network architecture imposed at the start.
 - Persistence and deterministic replay as research requirements for the engine.
 
-“QR-inspired” describes the matrix concept; these cells are computational units, not individual QR-code images. Compatibility with standard QR codes is not an initial objective.
+The internal representation of a QR neuron remains to be specified. Compatibility with standard QR codes is not an initial objective.
+
+## QR Neural Memory Principle 001
+
+A learned association is represented by persistent, experience-dependent changes distributed across the internal states of many QR neurons. No individual QR neuron is assigned ownership of the complete association. Retrieval must arise from interactions among these local states under explicitly defined deterministic rules.
+
+See [PRINCIPLES.md](PRINCIPLES.md) for the design consequences.
 
 ## Experiment 001: first measurable memory behavior
 
@@ -26,7 +32,7 @@ A further research question is whether retrieving a memory can change the substr
 
 ## Status
 
-The foundation provides a 4,096-cell binary state representation and a Python reconstruction-error metric. Learning, propagation, retrieval, persistence, and Experiment 001 are not implemented yet. No memory-performance or emergence claim has been demonstrated.
+The foundation provides a 4,096-cell activation-bit representation indexed by cell ID and a Python reconstruction-error metric. The activation bits are scaffolding; persistent internal neuron state, learning, propagation, retrieval, persistence, and Experiment 001 are not implemented yet. No memory-performance or emergence claim has been demonstrated.
 
 Read [AGENTS.md](AGENTS.md) and [HANDOFF.md](HANDOFF.md) when resuming work.
 

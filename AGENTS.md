@@ -2,13 +2,14 @@
 
 ## Rehydrate first
 
-Read this file, `HANDOFF.md`, and `README.md`, then inspect `git status`, the current branch, and recent commits before editing. Preserve existing user work. Recheck recorded facts against the checkout; a handoff is not live evidence.
+Read this file, `HANDOFF.md`, `README.md`, and `PRINCIPLES.md`, then inspect `git status`, the current branch, and recent commits before editing. Preserve existing user work. Recheck recorded facts against the checkout; a handoff is not live evidence.
 
 ## Research direction
 
 - Aim for roughly **80% Rust / 20% Python**, subject to change. This is an architectural direction, not a line-count quota.
 - Rust owns the substrate, state transitions, learning, propagation, persistence, and deterministic experiment execution. Python supports analysis, statistics, plots, and comparisons.
-- Begin with **4,096 computational cells in a 64 × 64 binary matrix**, CPU first and deterministic first.
+- Begin with **4,096 computational cells**, CPU first and deterministic first. Grid dimensions, geometry, and connectivity are unspecified; do not derive them from the cell count.
+- Follow Principle 001 in `PRINCIPLES.md`: learned associations must reside in persistent, experience-dependent internal changes distributed across many neurons, with retrieval through deterministic local interactions. The activation-bit scaffold does not implement these persistent states.
 - Do not introduce conventional QR error correction, PyTorch, a conventional neural-network architecture, GPU execution, or parallel updates without an experimental reason and an explicit discussion of the design change.
 - Keep state representation separate from update and learning rules. Document boundary conditions, update order, seeds, and parameters when those mechanisms are introduced.
 - Do not claim learning, emergence, intelligence, or memory performance from scaffolding, cell counts, or successful compilation. Unexpected behavior requires controls, reproduction, and a causal investigation.
