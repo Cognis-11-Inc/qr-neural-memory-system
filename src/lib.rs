@@ -1,4 +1,6 @@
-//! Initial activation-state scaffold; geometry and neuron internals remain unspecified.
+//! QR Neural Memory research: Experiment 0001 and the original activation scaffold.
+
+pub mod experiment;
 
 /// Number of computational cells in the initial substrate.
 pub const CELL_COUNT: usize = 4096;

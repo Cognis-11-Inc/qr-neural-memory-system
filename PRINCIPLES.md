@@ -11,4 +11,4 @@ A learned association is represented by persistent, experience-dependent changes
 - Do not assign a complete association to one neuron or substitute a central association lookup for retrieval through local interactions.
 - Evaluate distributed storage and retrieval experimentally; declaring this principle does not demonstrate either behavior.
 
-The current starting population is **4,096 cells**. This count does not specify grid dimensions, geometry, or connectivity. Those remain open design decisions.
+The current starting population is **4,096 QR neurons**, each with independently mutable internal color-and-shape state. This count does not specify geometry. [Experiment 0001](EXPERIMENT_0001.md) explicitly chooses a 64 × 64 network with 8 × 8 internal modules and eight nonwrapping external neighbors; these remain experimental choices.

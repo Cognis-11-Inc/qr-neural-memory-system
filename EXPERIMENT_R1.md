@@ -4,7 +4,7 @@
 
 Teach A → B, verify retrieval, then progressively disable neurons. Measure whether the learned association remains retrievable and how reconstruction degrades under random losses and contiguous regional damage. Also measure whether resilience competes with memory capacity and interference.
 
-This is a proposed protocol. The engine does not yet implement learning, retrieval, topology, or damage. No resilience measurement exists.
+This is a proposed resilience protocol. Experiment 0001 implements candidate learning/recall dynamics and topology, but failed its intact-association criteria; see [measured results](docs/EXPERIMENT_0001_RESULTS.md). Neuron-loss interventions remain unimplemented. No resilience measurement exists.
 
 ## Foundational requirements
 
@@ -17,7 +17,7 @@ Seek the smallest explicitly defined local learning rule that can satisfy both. 
 
 - Define persistent internal neuron state, transient activation, local learning and retrieval rules, update order, readout, stopping conditions, and deterministic input generation.
 - Keep the population at 4,096 cells. Specify geometry and boundary conditions separately; no grid dimensions follow from this count.
-- **Eight-neighbor connectivity is proposed, not implemented or finalized.** A spatial embedding and boundary rules must be defined before “contiguous regional damage” has an operational meaning. Local communication bottlenecks are a possible failure mechanism to investigate.
+- **Eight-neighbor connectivity is a candidate for R1.** Experiment 0001 uses it on a nonwrapping 64 × 64 network; adoption for a future working memory model must be explicit. A spatial embedding and boundary rules must be defined before “contiguous regional damage” has an operational meaning. Local communication bottlenecks are a possible failure mechanism to investigate.
 - Freeze the A/B pattern construction, cue completeness, output decoding, reconstruction metric, success threshold, trial count, seed list, damage schedule, memory loads, and any redundancy parameter before evaluating results. These values remain open; do not select them after seeing favorable outcomes.
 - Define what counts as redundancy for the selected rule. Compare variants with the same cell population and documented state/training budgets; do not attribute a result to redundancy when other changes are confounded with it.
 

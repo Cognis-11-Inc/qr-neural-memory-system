@@ -2,15 +2,15 @@
 
 ## Rehydrate first
 
-Read this file, `HANDOFF.md`, `README.md`, `PRINCIPLES.md`, and `HYPOTHESES.md`, then inspect `git status`, the current branch, and recent commits before editing. Preserve existing user work. Recheck recorded facts against the checkout; a handoff is not live evidence.
+Read this file, `HANDOFF.md`, `README.md`, `PRINCIPLES.md`, and `HYPOTHESES.md`, then inspect `git status`, the current branch, and recent commits before editing. For Experiment 0001, also read `EXPERIMENT_0001.md` and `docs/EXPERIMENT_0001_RESULTS.md`. Preserve existing user work. Recheck recorded facts against the checkout; a handoff is not live evidence.
 
 ## Research direction
 
 - Aim for roughly **80% Rust / 20% Python**, subject to change. This is an architectural direction, not a line-count quota.
 - Rust owns the substrate, state transitions, learning, propagation, persistence, and deterministic experiment execution. Python supports analysis, statistics, plots, and comparisons.
-- Begin with **4,096 computational cells**, CPU first and deterministic first. Grid dimensions, geometry, and connectivity are unspecified; do not derive them from the cell count.
-- Follow Principle 001 in `PRINCIPLES.md`: learned associations must reside in persistent, experience-dependent internal changes distributed across many neurons, with retrieval through deterministic local interactions. The activation-bit scaffold does not implement these persistent states.
-- Treat Hypothesis R1 as untested and attack it using `EXPERIMENT_R1.md`: compare random and contiguous damage, report failures, and measure capacity/interference trade-offs. Eight-neighbor connectivity is proposed; geometry is unresolved. Damage illustrations are not retrieval evidence.
+- Begin with **4,096 QR neurons**, CPU first and deterministic first. Each must have an independently mutable internal spatial color-and-shape configuration. Experiment 0001 explicitly adopts a 64 × 64 network, 8 × 8 internal modules, and eight nonwrapping external neighbors from the supplied brief. These are experiment parameters, not consequences of the cell count or universal architecture requirements.
+- Follow Principle 001 in `PRINCIPLES.md`: learned associations must reside in persistent, experience-dependent internal changes distributed across many neurons, with retrieval through deterministic local interactions. Keep wave amplitude/momentum separate from persistent configuration. The original activation-bit scaffold is not the neuron model used by the experiment.
+- Treat Hypothesis R1 as untested and attack it using `EXPERIMENT_R1.md`: compare random and contiguous damage, report failures, and measure capacity/interference trade-offs. Finalize R1 topology and damage semantics separately; Experiment 0001's eight-neighbor geometry is a candidate, not a resilience result. Damage illustrations are not retrieval evidence.
 - Do not introduce conventional QR error correction, PyTorch, a conventional neural-network architecture, GPU execution, or parallel updates without an experimental reason and an explicit discussion of the design change.
 - Keep state representation separate from update and learning rules. Document boundary conditions, update order, seeds, and parameters when those mechanisms are introduced.
 - Do not claim learning, emergence, intelligence, or memory performance from scaffolding, cell counts, or successful compilation. Unexpected behavior requires controls, reproduction, and a causal investigation.

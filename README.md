@@ -6,14 +6,14 @@ We investigate what the substrate's rules actually permit. Useful memory behavio
 
 ## Initial direction
 
-- **4,096 computational cells**. Grid dimensions, geometry, and connectivity remain unspecified.
+- **4,096 independently reconfigurable QR neurons**. Experiment 0001 uses a **64 × 64 network**, each neuron containing its own **8 × 8 spatial array of colored modules**. These are explicit experiment parameters; the population count alone does not define geometry.
 - Approximately **80% Rust / 20% Python**, a flexible architectural target. Rust owns the engine and deterministic experiments; Python supports analysis, statistics, plots, and comparisons.
 - CPU execution and deterministic experiments first.
 - Distributed representations, local interactions, and experimentally defined plasticity.
 - No conventional QR error correction or conventional neural-network architecture imposed at the start.
 - Persistence and deterministic replay as research requirements for the engine.
 
-The internal representation of a QR neuron remains to be specified. Compatibility with standard QR codes is not an initial objective.
+Experiment 0001 implements five module values (empty, red, green, blue, yellow). Their spatial arrangement is the neuron's shape. Color and shape affect computation. Ripple amplitudes and momentum are transient and separate from persistent module configuration. Compatibility with standard QR codes is not an initial objective.
 
 ## QR Neural Memory Principle 001
 
@@ -25,7 +25,7 @@ See [PRINCIPLES.md](PRINCIPLES.md) for the design consequences.
 
 Associations encoded through overlapping, persistent changes across multiple QR neurons can remain retrievable after partial loss or corruption of the substrate.
 
-**Untested.** We will attack this hypothesis by verifying A → B retrieval, then progressively disabling neurons under matched random and contiguous regional damage. Graceful degradation is a target to test. Capacity, redundancy, and interference must be measured together. Eight-neighbor connectivity remains a proposal; geometry is unspecified.
+**Untested.** We will attack this hypothesis by verifying A → B retrieval, then progressively disabling neurons under matched random and contiguous regional damage. Graceful degradation is a target to test. Capacity, redundancy, and interference must be measured together. Experiment 0001 implements eight-neighbor connectivity without demonstrating working association retrieval; lesion testing is deferred.
 
 See [HYPOTHESES.md](HYPOTHESES.md) and the proposed [R1 experiment protocol](EXPERIMENT_R1.md). Damage illustrations are not measured retrieval results.
 
@@ -40,7 +40,18 @@ A further research question is whether retrieving a memory can change the substr
 
 ## Status
 
-The foundation provides a 4,096-cell activation-bit representation indexed by cell ID and a Python reconstruction-error metric. The activation bits are scaffolding; persistent internal neuron state, learning, propagation, retrieval, persistence, and Experiment 001 are not implemented yet. No memory-performance or emergence claim has been demonstrated.
+Experiment 0001 is implemented and measured: a local color-transition baseline and a two-scale damped-wave candidate, with persistent per-neuron module arrays, synchronous updates, transient reset, partial-cue recall, sequential training, controls, ablations, and exported snapshots. **None of the 24 registered trials met the association or retention criteria.** The ripple arm produced empty outputs and no persistent changes at the registered distance/duration; the local baseline changed 16 neurons but reconstructed targets poorly. No successful learning, distributed-memory mechanism, or resilience is demonstrated.
+
+Read the [rules and preregistered criteria](EXPERIMENT_0001.md) and [actual results and failures](docs/EXPERIMENT_0001_RESULTS.md). Raw evidence remains local under the ignored `results/` directory.
+
+To reproduce, use a fresh output directory for each run:
+
+```sh
+cargo run --locked --release --bin experiment_0001 -- results/my-experiment-0001
+.venv/bin/python -m analysis.experiment_0001 results/my-experiment-0001
+```
+
+The runner refuses an existing output directory. The analyzer independently checks raw outputs, metrics, snapshots, change locations/counts, and trial decisions. A completed execution is distinct from a positive scientific result.
 
 Read [AGENTS.md](AGENTS.md) and [HANDOFF.md](HANDOFF.md) when resuming work.
 

@@ -2,54 +2,118 @@
 
 Updated: 2026-11-12 (America/Toronto).
 
-## Session starting point
+## Rehydrate
 
-The user requested Git setup, a repository under Cognis 11 Inc., the usual agent/handoff documents, severe CI, and public visibility. Git was already installed. The empty project folder was initialized on `main` and the initial research brief was pushed in commit `7fc8ace`.
+Read `AGENTS.md`, `README.md`, `PRINCIPLES.md`, `HYPOTHESES.md`,
+`EXPERIMENT_0001.md`, and `docs/EXPERIMENT_0001_RESULTS.md`, then inspect the
+current worktree and recent commits. The report distinguishes software checks,
+measured experiment failures, replay, and hosted delivery evidence.
 
-- Local directory: `/home/cognis/Cognis_Lab/QR neural memory system`
-- Repository: https://github.com/Cognis-11-Inc/qr-neural-memory-system
-- Owner: `Cognis-11-Inc` (Cognis 11 Inc.)
-- Visibility: public, explicitly requested by the user.
-- Default branch: `main`; `origin` uses HTTPS.
+## Project and user requirements
 
-## Decisions and boundaries
+- Local directory: `/home/cognis/Cognis_Lab/QR neural memory system`.
+- Public repository: https://github.com/Cognis-11-Inc/qr-neural-memory-system
+- Owner: Cognis 11 Inc. (`Cognis-11-Inc`); branch `main`; HTTPS `origin`.
+- Target approximately 80% Rust / 20% Python, flexible rather than a line quota.
+- 4,096 QR neurons, **each with an independently mutable internal spatial
+  color-and-shape configuration**. Rust owns the deterministic engine.
+- Principle 001: associations must be investigated as persistent,
+  experience-dependent changes distributed across neurons. No neuron owns a
+  complete association. Retrieval must emerge from explicit local interactions.
+- R1 distributed resilience remains untested. Graceful degradation is a target;
+  no lesion experiment follows until intact retrieval works. The proposed R1
+  protocol is `EXPERIMENT_R1.md`.
+- Research reading list: `docs/FOUNDATIONAL_PAPERS.md`, imported unchanged from
+  Downloads. Bibliographic claims were not verified during import.
 
-The current target is approximately **80% Rust and 20% Python**, flexible as the research develops. Rust owns the engine and deterministic experiments; Python handles scientific analysis and visualization. Start with **4,096 computational cells**, CPU first. The user corrected the assumed square grid: cell count stays 4,096; grid dimensions, geometry, and connectivity remain unspecified. The internal representation of a QR neuron also remains to be designed.
+## Latest task and design decisions
 
-The user authored **Principle 001**, recorded verbatim in `PRINCIPLES.md` and `README.md`: associations reside in persistent, experience-dependent changes distributed across internal neuron states, with no single neuron assigned ownership of an entire association. Retrieval must arise from deterministic interactions among these local states.
+The user requested execution of `/home/cognis/Downloads/EXPERIMENT_0001_CODEX_BRIEF.md`:
+formalize rules first, then implement the smallest testable Rust experiment,
+run checks, document actual results and failures, update this handoff, and make
+no unsupported learning/resilience claim. The brief was read in full.
 
-The first scientific objective is association learning, retrieval from partial cues, and measurement of interference with previously learned associations. Retrieval-induced substrate change and computation beyond retrieval remain research questions. No conventional learning architecture or QR error correction is imposed.
+The user subsequently introduced ripple dynamics: local disturbances within and
+between QR neurons; transient amplitude/momentum distinct from persistent
+color-and-shape configuration; experience changes the medium. This was added to
+the specification **before code or measurements**, retaining a simpler local
+baseline. No external literature claims were needed for the candidate equations.
 
-The user authored **Hypothesis R1: distributed resilience**, recorded verbatim in `HYPOTHESES.md` and `README.md`. They explicitly want it attacked experimentally: intact A → B retrieval followed by progressive random loss and contiguous regional damage, with capacity, redundancy, and interference measured together. Graceful degradation is a target, not an assumed capability. Eight-neighbor connectivity is proposed; it does not settle grid dimensions or boundary rules. A 20% loss illustration is not measured performance.
+Earlier the user removed an assumed 64 × 64 geometry. The newly supplied brief
+explicitly specifies a 64 × 64 network, adopted **for Experiment 0001 only**.
+Each neuron's separate internal matrix is 8 × 8, palette 0–4. Eight nonwrapping
+external neighbors and four orthogonal internal-module neighbors are explicit
+experiment parameters; the neuron count itself implies no geometry.
 
-## Current implementation
+## Implementation
 
-- `src/lib.rs`: 4,096 activation bits indexed by cell ID, without spatial meaning, and empty-state construction. The former square-grid API was replaced by `ActivationState` and `empty_activation_state`; there are no other in-repository callers. No persistent learned internal state, propagation, learning, retrieval, or persistence yet.
-- `analysis/metrics.py`: normalized binary reconstruction error, with invalid-input checks.
-- Rust test checks the 4,096-cell initial state and independent mutations. Python tests cover known reconstruction errors and invalid comparisons. These are foundation checks, not memory experiments.
-- `.github/workflows/ci.yml`: severe CI on pushes, pull requests, and manual runs. Rust formatting, strict Clippy, tests, doctests, release build, and documentation; Python 3.12/3.14 formatting, lint, tests, and compilation. Action revisions, Rust, and Ruff are pinned; workflow permissions are read-only.
-- `AGENTS.md`: rehydration, research, validation, and delivery rules.
-- `HYPOTHESES.md` and `EXPERIMENT_R1.md`: untested R1 and a proposed loss protocol, including paired masks, disabled-neuron semantics, intact controls, full-target scoring, capacity trade-offs, and unresolved preregistration choices. Corruption remains a separate intervention. No engine behavior was added by these documents.
-- `docs/FOUNDATIONAL_PAPERS.md`: user-supplied research reading list, copied unchanged from `/home/cognis/Downloads/FOUNDATIONAL_PAPERS.md` and linked from the README. Use this prior work as a foundation for design and comparisons. Its bibliographic claims were not independently verified during import; it includes an explicitly unverified reference. No full-text PDFs were downloaded or added.
+- `src/experiment.rs`: per-neuron persistent module arrays, transient local
+  signals or four-channel current/previous amplitudes, snapshot-based synchronous
+  updates, local color-transition plasticity, local baseline and damped-wave
+  candidate, sequential training, incomplete-cue recall, controls/ablations,
+  exported evidence and fixed scientific decisions. No external dependencies.
+- `src/bin/experiment_0001.rs`: runner; refuses an existing output directory.
+- `analysis/experiment_0001.py`: independently recomputes colored-output metrics
+  and verifies snapshots/change counts, locations, trial coverage and verdicts.
+- Original activation-bit helpers remain as legacy scaffolding in `src/lib.rs`;
+  the experiment does not use those helpers as its neuron representation.
+- Inference receives only the cue and substrate, never a teaching target or
+  pair table. Targets are used by the evaluator after inference. Reset clears
+  both amplitude and momentum while preserving internal module configurations.
+- Snapshots export learned arrays for inspection; importing/restarting an engine
+  from snapshots is not implemented or claimed.
 
-## Verification record
+## Actual results
 
-Initial repository creation: local `main` and remote `main` both matched `7fc8acee5f304967e953c82d90c63263f60da136`; the worktree was clean. Public visibility was then verified through GitHub.
+**No successful associative learning, sequential retention, distributed causal
+memory, or resilience has been demonstrated.** All 24 registered seed × arm ×
+variant trials failed the association/retention criteria; 168 inferences per run.
 
-Local foundation checks passed: Rust formatting, strict Clippy, 1 unit test, doctest execution (0 examples), release build, and documentation; Python Ruff formatting/lint, 2 unit tests, and compilation. Local Python was 3.13.16; the hosted matrix covers 3.12 and 3.14. No scientific memory experiment has run.
+Local normal A→B errors (seeds 7, 19, 41): 0.831055, 0.783203, 0.789062.
+This rule changed 16 taught output neurons, with 741/769/759 modules changed
+from initialization. Changes are localized to rows 30–33, columns 60–63; the
+other 4,080 sites are relays under this rule. C→D modifies the same 16 sites.
+Multiple changed neurons are evidence of mutation, not working memory.
 
-Hosted [Severe CI run 43101324092](https://github.com/Cognis-11-Inc/qr-neural-memory-system/actions/runs/43101324092) passed all three jobs (Rust, Python 3.12, Python 3.14) for foundation commit `102ff79be42b7309100f5f5abf9f16cbb3eda4a5`. Local and remote `main` matched that commit and the worktree was clean before this verification note was added.
+Ripple output was entirely empty; no persistent modules changed in the exported
+full-distance trials. Final output-region amplitudes were about 2.4–3.1e-124,
+far below the fixed 1e-12 readout threshold. Controls and trained conditions
+match. Lower palette error than the local rule reflects empty target modules,
+not better retrieval. The 160-cycle unforced impulse screen had peak 5.234436
+and zero nonfinite observations; this is not a general stability proof.
 
-Recheck hosted CI for later commits through the [Actions history](https://github.com/Cognis-11-Inc/qr-neural-memory-system/actions/workflows/ci.yml). No branch protection or required-check policy has been configured.
+Raw local evidence (ignored by Git):
 
-2026-11-12 correction: Principle 001 was added verbatim, the assumed square geometry was removed from current documentation and Rust code, and the population remains 4,096. All local severe-CI checks passed after the correction (1 Rust unit test, 2 Python unit tests; no memory experiment). Hosted [CI run 43244414084](https://github.com/Cognis-11-Inc/qr-neural-memory-system/actions/runs/43244414084) passed for correction commit `130d14d6c94afe1dfa9e856fbc46a038fa912c48`.
+- `results/experiment_0001-run-01`: first complete run, before additional
+  output-region/all-cycle-stability instrumentation; scientific outputs unchanged.
+- `results/experiment_0001-final-a` and `results/experiment_0001-final-b`:
+  completed full runs with final instrumentation, byte-identical directories
+  including independently generated analysis summaries. Each includes exact
+  sources, specification, parameters, original stimuli, raw outputs, snapshots,
+  metrics, change locations, impulse samples, stability screen, verdicts, and
+  completion marker. `COMPLETE` is execution evidence, not scientific success.
 
-The subsequent R1 addition changes documentation only. Local document links, the verbatim R1 statement, and diff whitespace checks passed. Verify hosted CI for its pushed commit. No R1 experiment has run.
+Output-stream SHA-256 for both final runs:
+`c6731221dc80e35f35d58a7d99676917d60a0c3808fda6a68cfb1967b0a4d1d9`.
+Python independently verified all 168 scores and persistent changes per final run.
+Same-machine/toolchain replay only; no cross-platform bit-identity claim.
 
-Foundational reading-list import: source and destination compared byte-for-byte and their SHA-256 hashes matched. This addition changes documentation only.
+## Verification and delivery
 
-## Next bounded research step
+Final local checks passed: Rust formatting, strict Clippy,
+9 Rust tests, doctest execution (0 examples), release build and documentation;
+Python Ruff formatting/lint, 4 unit tests and compilation. Document links and
+diff whitespace checks also passed. Hosted CI is separate and must be verified
+for a pushed commit. Prior repository checkpoints include foundation `102ff79`,
+Principle 001/geometry correction `130d14d`, R1 protocol `6c13c3e`, and reading-list
+import `4735898`. No required-check/branch-protection policy is configured.
 
-Specify Experiment 001 before implementing learning: persistent internal neuron state consistent with Principle 001, geometry/connectivity, local interaction and boundary rules, synchronous versus asynchronous updates, the learning rule, cue corruption procedure, controls, and retention/interference metrics. Record parameters and deterministic input generation. Run the complete 4,096-cell substrate and retain reproducible evidence. Avoid selecting a rule merely because it produces an appealing visualization.
+## Next bounded step
 
-Use `EXPERIMENT_R1.md` to settle the resilience protocol before collecting results. First establish meaningful intact retrieval; then run neuron-loss comparisons and capacity/interference trials. Do not treat the written protocol as an implementation or a demonstration.
+Do not tune Experiment 0001 retroactively. Register a separate transport
+experiment with plasticity disabled: amplitude/channel fidelity against distance,
+time, damping and coupling, with boundary/stability checks. Then investigate
+shape-sensitive cue binding and persistent plasticity if usable signals exist.
+The present color-offset rule cannot route arbitrary source shapes into target
+shapes. Capacity, resilient recall, live visualization, and a general-purpose
+memory engine remain future work.
