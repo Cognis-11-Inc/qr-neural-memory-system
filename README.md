@@ -4,6 +4,8 @@ An experimental, Rust-first investigation of a mutable, QR-inspired computationa
 
 We investigate what the substrate's rules actually permit. Useful memory behavior and any unexpected computation must be measured, reproduced, and explained before they become claims.
 
+Follow the [experiment progression index](docs/EXPERIMENTS.md) for separate designs, measured outcomes, and deferred questions. Experiment 0001 remains frozen; Experiment 0002 studies intrinsic dynamics rather than memory retrieval.
+
 ## Initial direction
 
 - **4,096 independently reconfigurable QR neurons**. Experiment 0001 uses a **64 × 64 network**, each neuron containing its own **8 × 8 spatial array of colored modules**. These are explicit experiment parameters; the population count alone does not define geometry.
@@ -54,6 +56,23 @@ cargo run --locked --release --bin experiment_0001 -- results/my-experiment-0001
 The runner refuses an existing output directory. The analyzer independently checks raw outputs, metrics, snapshots, change locations/counts, and trial decisions. A completed execution is distinct from a positive scientific result.
 
 Read [AGENTS.md](AGENTS.md) and [HANDOFF.md](HANDOFF.md) when resuming work.
+
+## Experiment 0002: intrinsic dynamics, transport, and resonance
+
+Stages T and R are implemented in a separate runner and measured across **1,101 cases per run**, with two byte-identical complete runs. Each full network still contains 4,096 independent 8 × 8 color-and-shape configurations. Displacement and velocity are transient; plasticity is disabled.
+
+- **T: negative at the registered four-hop usability threshold.** All 96 required probes detected signals, but their normalized transfer was too weak. Nearer-distance transmission is documented separately.
+- **R: indeterminate.** 28/36 isolated-neuron sweeps met the spectral-peak criterion; 11/12 shape pairs exceeded the sensitivity threshold. Four timestep-convergence checks failed, and the full positive criterion was not met.
+- **P: not run.** No persistent reconfiguration, memory learning, or resilience is claimed.
+
+See the [frozen registration](EXPERIMENT_0002.md) and [measured results, controls, and figures](docs/EXPERIMENT_0002_RESULTS.md). Scalar, isolated-neuron, nine-neuron diagnostic patches, and limited full-network spectral cases are explicitly distinguished.
+
+```sh
+cargo run --locked --release --bin experiment_0002 -- results/my-experiment-0002
+.venv/bin/python -m analysis.experiment_0002 results/my-experiment-0002
+```
+
+Raw evidence stays under ignored `results/` folders. Numerical verification uses the Python standard library; optional figures use `requirements-plot.txt`.
 
 ## Research foundations
 

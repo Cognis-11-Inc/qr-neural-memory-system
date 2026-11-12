@@ -6,7 +6,9 @@ Updated: 2026-11-12 (America/Toronto).
 
 Read `AGENTS.md`, `README.md`, `PRINCIPLES.md`, `HYPOTHESES.md`,
 `EXPERIMENT_0001.md`, and `docs/EXPERIMENT_0001_RESULTS.md`, then inspect the
-current worktree and recent commits. The report distinguishes software checks,
+current worktree and recent commits. For the latest scope also read
+`EXPERIMENT_0002.md`, `docs/EXPERIMENT_0002_RESULTS.md`, and
+`docs/EXPERIMENTS.md`. The reports distinguish software checks,
 measured experiment failures, replay, and hosted delivery evidence.
 
 ## Project and user requirements
@@ -26,7 +28,75 @@ measured experiment failures, replay, and hosted delivery evidence.
 - Research reading list: `docs/FOUNDATIONAL_PAPERS.md`, imported unchanged from
   Downloads. Bibliographic claims were not verified during import.
 
-## Latest task and design decisions
+## Latest delivery: Experiment 0002 T/R
+
+The user explicitly authorized **execute Stages T and R, preserve Experiment
+0001 unchanged**, and requested clean progression. The separate proposal archive
+is `docs/EXPERIMENT_0002_PROPOSAL.md`; trailing whitespace was normalized.
+Actual fixed design: `EXPERIMENT_0002.md`. Its draft clock is 16:32:35 UTC and
+Git freeze checkpoint is `f3167f19a2504c24e53fddc76a35423bf8ecc18d` at
+2026-11-12 16:38:24 UTC, before implementation or trial collection.
+
+New engine/runner: `src/experiment_0002.rs`, `src/bin/experiment_0002.rs`.
+Independent verifier: `analysis/experiment_0002.py`. Optional figures:
+`analysis/plot_experiment_0002.py`, pinned `requirements-plot.txt`.
+The engine has no new Rust dependencies; verification is Python standard-library
+only. Scalar modules, isolated 8 × 8 neurons, nine-neuron patches, and limited
+full-network spectral checks are distinct fixtures. Full T networks contain
+4,096 neurons, each with independent internal spatial color-and-shape state.
+Intrinsic frequency/damping and coupling derive from configuration. Four
+independent channels use synchronous f64 displacement/velocity updates.
+
+**Measured outcome:** 73 T + 1,028 R cases per run; both complete runs at
+`results/experiment_0002-a` and `results/experiment_0002-b` compare byte-for-byte
+identical, including independent analysis. Raw evidence remains ignored by Git.
+Every exported probe metric/phase, final-state diagnostic, input energy,
+coverage, and before/after persistent snapshot was independently checked.
+
+- **T negative** at the registered four-hop usability threshold: 96/96 required
+  probes cross 1e-6 absolute amplitude, but 0/96 reach RMS/source RMS >=1e-3.
+  The strongest four-hop ratio is 0.0002332. Nearer two-hop transmission meets
+  these thresholds descriptively; this does not replace the registered verdict.
+- **R indeterminate**: 28/36 isolated sweeps meet the peak criterion; 11/12
+  same-histogram shape pairs differ by >5%. Four isolated complex-transfer
+  timestep comparisons fail the 10% limit (errors 10.28%–12.26%). All peak bins
+  agree between steps; 3/3 limited full-network comparisons pass the 15% bound.
+  Nine shape pairs meet sensitivity and both paired numerical-validity checks.
+- All 1,101 cases satisfy every-step amplitude/velocity boundedness screens;
+  no nonfinite observations. Both zero-drive cases remain exactly zero. Maximum
+  input-energy error is 4.22e-15. All persistent structures remain unchanged.
+- Doubling damping lowers the sampled peak gain 4.98265 → 3.11663. Equal-spectrum,
+  equal-energy multisine phase controls were verified; they establish no learned
+  coherence or spatial synchronization.
+- **Stage P not run**: no plasticity, no eligibility traces, no experience-induced
+  persistent reconfiguration, no memory/resilience result or novelty claim.
+
+Raw Rust summary SHA-256:
+`cd67cccbe6c380dd0384e2b0d5751ef4137f36c62eab6de9f91081acc3c9598d`.
+Figures and a complete account of failures/indeterminacy are in
+`docs/EXPERIMENT_0002_RESULTS.md`. Raw internal probe `distance` records graph
+hops; verified tables derive true internal Euclidean distance explicitly.
+
+Experiment 0001 engine, runner, analyzer, tests, specification, and results
+report passed original SHA-256 preservation checks and have an empty Git diff.
+Its old raw evidence was read only to copy the historical impulse CSV unchanged;
+that reference is not matched forcing and implies no comparative superiority.
+
+Final local gates passed: 16 Rust tests, 8 Python tests, formatting, strict
+Clippy/Ruff, release build, doctest execution and rustdoc with warnings denied,
+Python compilation, documentation/figure links, independent numerical
+verification, complete-run byte comparison and Experiment 0001 preservation.
+Both report figures were rendered and inspected. Implementation checkpoint is
+`8a0f5b4` following frozen registration `f3167f1`; measured results are recorded
+in a separate documentation commit. Push/hosted CI remain separate evidence
+and must be checked against the delivered SHA.
+
+Next falsification: separately register finer integration/frequency resolution,
+longer-window sensitivity and a coupling/damping transport grid. Do not tune
+Experiment 0002 retrospectively. Stage P remains deferred and separately
+registered/authorized. No change to Experiment 0001 is needed.
+
+## Experiment 0001 task and design decisions
 
 The user requested execution of `/home/cognis/Downloads/EXPERIMENT_0001_CODEX_BRIEF.md`:
 formalize rules first, then implement the smallest testable Rust experiment,
@@ -45,7 +115,7 @@ Each neuron's separate internal matrix is 8 × 8, palette 0–4. Eight nonwrappi
 external neighbors and four orthogonal internal-module neighbors are explicit
 experiment parameters; the neuron count itself implies no geometry.
 
-## Implementation
+## Experiment 0001 implementation
 
 - `src/experiment.rs`: per-neuron persistent module arrays, transient local
   signals or four-channel current/previous amplitudes, snapshot-based synchronous
@@ -63,7 +133,7 @@ experiment parameters; the neuron count itself implies no geometry.
 - Snapshots export learned arrays for inspection; importing/restarting an engine
   from snapshots is not implemented or claimed.
 
-## Actual results
+## Experiment 0001 actual results
 
 **No successful associative learning, sequential retention, distributed causal
 memory, or resilience has been demonstrated.** All 24 registered seed × arm ×
@@ -98,7 +168,7 @@ Output-stream SHA-256 for both final runs:
 Python independently verified all 168 scores and persistent changes per final run.
 Same-machine/toolchain replay only; no cross-platform bit-identity claim.
 
-## Verification and delivery
+## Experiment 0001 verification and delivery
 
 Final local checks passed: Rust formatting, strict Clippy,
 9 Rust tests, doctest execution (0 examples), release build and documentation;
@@ -112,7 +182,7 @@ repository checkpoints include foundation `102ff79`,
 Principle 001/geometry correction `130d14d`, R1 protocol `6c13c3e`, and reading-list
 import `4735898`. No required-check/branch-protection policy is configured.
 
-## Next bounded step
+## Historical next step after Experiment 0001
 
 Do not tune Experiment 0001 retroactively. Register a separate transport
 experiment with plasticity disabled: amplitude/channel fidelity against distance,

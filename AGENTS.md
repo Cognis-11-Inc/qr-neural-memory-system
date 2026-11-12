@@ -4,6 +4,8 @@
 
 Read this file, `HANDOFF.md`, `README.md`, `PRINCIPLES.md`, and `HYPOTHESES.md`, then inspect `git status`, the current branch, and recent commits before editing. For Experiment 0001, also read `EXPERIMENT_0001.md` and `docs/EXPERIMENT_0001_RESULTS.md`. Preserve existing user work. Recheck recorded facts against the checkout; a handoff is not live evidence.
 
+For current Experiment 0002 work, read `EXPERIMENT_0002.md`, `docs/EXPERIMENT_0002_RESULTS.md`, and `docs/EXPERIMENTS.md`. Keep designs, raw evidence, and results separate so progression remains inspectable.
+
 ## Research direction
 
 - Aim for roughly **80% Rust / 20% Python**, subject to change. This is an architectural direction, not a line-count quota.
@@ -13,6 +15,7 @@ Read this file, `HANDOFF.md`, `README.md`, `PRINCIPLES.md`, and `HYPOTHESES.md`,
 - Treat Hypothesis R1 as untested and attack it using `EXPERIMENT_R1.md`: compare random and contiguous damage, report failures, and measure capacity/interference trade-offs. Finalize R1 topology and damage semantics separately; Experiment 0001's eight-neighbor geometry is a candidate, not a resilience result. Damage illustrations are not retrieval evidence.
 - Do not introduce conventional QR error correction, PyTorch, a conventional neural-network architecture, GPU execution, or parallel updates without an experimental reason and an explicit discussion of the design change.
 - Keep state representation separate from update and learning rules. Document boundary conditions, update order, seeds, and parameters when those mechanisms are introduced.
+- Experiment 0002 T/R measures fixed-structure intrinsic dynamics, transport, and spectral selectivity; memory retrieval is not its pass/fail criterion. Stage P plasticity is deferred and requires separate registration/authorization. Preserve Experiment 0001's sources, parameters, specifications, negative results, and existing raw evidence unchanged.
 - Do not claim learning, emergence, intelligence, or memory performance from scaffolding, cell counts, or successful compilation. Unexpected behavior requires controls, reproduction, and a causal investigation.
 
 ## Implementation and evidence

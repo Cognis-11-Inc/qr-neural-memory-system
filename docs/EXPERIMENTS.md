@@ -3,7 +3,7 @@
 | Experiment | Question | Status | Design | Evidence |
 |---|---|---|---|---|
 | 0001 | Can local color-transition traces or ripple dynamics retrieve associations? | Implemented and measured; negative registered result | [Frozen design](../EXPERIMENT_0001.md) | [Results and failures](EXPERIMENT_0001_RESULTS.md) |
-| 0002 T/R | Can configuration-dependent intrinsic oscillations transmit signals and show controlled spectral selectivity? | Registered; execution pending | [Frozen registration](../EXPERIMENT_0002.md) | Report will be added after measurement |
+| 0002 T/R | Can configuration-dependent intrinsic oscillations transmit signals and show controlled spectral selectivity? | Implemented and measured: T negative at four hops; R indeterminate | [Frozen registration](../EXPERIMENT_0002.md) | [Results, controls and figures](EXPERIMENT_0002_RESULTS.md) |
 | 0002 P | Can resonance condition persistent reconfiguration? | Deferred; not authorized for this delivery | Requires separate registration | No results |
 | R1 | Does a working distributed association survive partial loss? | Proposed; intact retrieval prerequisite unmet | [Proposed protocol](../EXPERIMENT_R1.md) | No resilience measurements |
 
@@ -16,5 +16,10 @@ is a completed research deliverable.
 
 - 2026-11-12: Experiment 0001 implemented, measured, independently verified and
   replayed. No successful association retrieval or resilience demonstrated.
-- 2026-11-12 16:32:35 UTC: Experiment 0002 T/R preregistered before implementation
-  and outcome collection; Stage P deferred. No Experiment 0002 result claimed yet.
+- 2026-11-12 16:32:35 UTC: Experiment 0002 registration draft started; Stage P deferred.
+- 2026-11-12 16:38:24 UTC: T/R registration frozen in commit `f3167f1` before
+  implementation or data collection.
+- 2026-11-12: T/R executed twice: 73 transport and 1,028 spectral/control cases
+  per run, byte-identical evidence independently checked in Python. T fails the
+  four-hop normalized-transfer criterion; R remains numerically indeterminate.
+  Neither failed criteria nor thresholds were revised after inspection.
