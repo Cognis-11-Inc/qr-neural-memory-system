@@ -332,18 +332,26 @@ def verify(folder: Path) -> dict:
     return result
 
 
-def verify_witness(folder: Path, recording: Path) -> dict:
+def verify_witness(folder: Path, recording: Path, synthetic=False) -> dict:
     """Compare actual Bevy UI receipts with recorded values, including LIVE hashes."""
     if not (folder / "COMPLETE").exists():
         raise ValueError("viewer witness incomplete")
-    frames = {
-        frame["tick"]: frame
-        for frame in (read_snapshot(p) for p in sorted(recording.glob("*.qrs")))
-    }
+    frames = {}
+    for path in sorted(recording.glob("*.qrs")):
+        frame = read_snapshot(path)
+        if synthetic:
+            data = bytearray(path.read_bytes())
+            data[44] = 1
+            model_length = struct.unpack_from("<I", data, 45)[0]
+            struct.pack_into("<I", data, 49 + model_length + 16 + 224, 1)
+            frame["fnv"] = f"{fnv(data[:-8]):016x}"
+        frames[frame["tick"]] = frame
     audit = rows(folder / "audit.csv")
     if len(audit) != 67:
         raise ValueError("viewer did not cover 21 ticks x 3 selections plus 4 seeks")
     for row in audit:
+        if synthetic and row["mode"] != "SYNTHETIC TEST FIXTURE":
+            raise ValueError("synthetic fixture was not explicitly labeled")
         frame = frames[int(row["tick"])]
         neuron = frame["neurons"][int(row["id"])]
         if row["fnv1a"] != frame["fnv"]:
@@ -378,7 +386,12 @@ def verify_witness(folder: Path, recording: Path) -> dict:
         "palettes_equal": True,
         "numeric_fields_equal": True,
         "filters_verified": True,
+        "synthetic_label_test": synthetic,
     }
+    if (folder / "adapter.txt").exists():
+        result["renderer"] = dict(
+            line.split("=", 1) for line in (folder / "adapter.txt").read_text().splitlines()
+        )
     (folder / "verification.json").write_text(json.dumps(result, indent=2, sort_keys=True) + "\n")
     return result
 
@@ -387,8 +400,13 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("folder", type=Path)
     parser.add_argument("--recording", type=Path)
+    parser.add_argument("--synthetic-label-test", action="store_true")
     args = parser.parse_args()
-    result = verify_witness(args.folder, args.recording) if args.recording else verify(args.folder)
+    result = (
+        verify_witness(args.folder, args.recording, args.synthetic_label_test)
+        if args.recording
+        else verify(args.folder)
+    )
     print(json.dumps(result, indent=2, sort_keys=True))
 
 

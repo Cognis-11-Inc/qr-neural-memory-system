@@ -8,7 +8,8 @@ Read `AGENTS.md`, `README.md`, `PRINCIPLES.md`, `HYPOTHESES.md`,
 `EXPERIMENT_0001.md`, and `docs/EXPERIMENT_0001_RESULTS.md`, then inspect the
 current worktree and recent commits. For the latest scope also read
 `EXPERIMENT_0002.md`, `docs/EXPERIMENT_0002_RESULTS.md`, and
-`docs/EXPERIMENTS.md`. The reports distinguish software checks,
+`docs/EXPERIMENTS.md`. The latest delivery additionally requires
+`EXPERIMENT_0003.md`, `docs/EXPERIMENT_0003_RESULTS.md`, and `viewer/README.md`. The reports distinguish software checks,
 measured experiment failures, replay, and hosted delivery evidence.
 
 ## Project and user requirements
@@ -28,7 +29,68 @@ measured experiment failures, replay, and hosted delivery evidence.
 - Research reading list: `docs/FOUNDATIONAL_PAPERS.md`, imported unchanged from
   Downloads. Bibliographic claims were not verified during import.
 
-## Latest delivery: Experiment 0002 T/R
+## Latest delivery: Experiment 0003
+
+User authorized the full volumetric lattice / Bevy observatory proposal while
+preserving both prior experiments. Registration `5a112c14033f9a4a825b290b606d9ed1ca692a2d`
+was frozen at 2026-11-13 03:34:26 UTC, before measurements; implementation
+checkpoint `e9d9dcaea9ccbb168e3817be3af7706963a1ec73` is pushed.
+
+- New headless modules: `src/topology.rs`, `src/lattice.rs`, `src/observation.rs`,
+  `src/experiment_0003.rs`; separate CLI `experiment_0003`.
+- 16³ Cubic6 / Cubic26, 64²×1 Grid2D8 adapter; fixed maximum-degree coupling
+  divisors 6 / 26 / 8, open boundaries, ascending neighbor order. Exact 0002
+  oscillator, dt=0.1, 160 ticks; four stored independent channels, only channel 1
+  driven. All 4,096 neurons own independent 64-module palettes; no plasticity.
+- Two complete 111-case suites in `results/experiment_0003-a` and `-b` compare
+  byte-for-byte identical including analysis. Each has 2,331 frames, zero
+  numerical-screen failures, zero nonfinite values, zero persistent changes.
+  Raw ledger SHA-256:
+  `f6279047dd4015507a7851547bb82471b7a91cfc29c6999c7c530d0b07885ed1`.
+  Core checksum readback covers all frames; independent Python checks all fields
+  and separately recomputes checksums on 241 frames. See report for scope.
+- Center impulse reach (threshold 1e-6): Cubic6 303–467 neurons / 6–7 hops;
+  Cubic26 681–1153 / 5–6 hops. Corners reach fewer sites; graph and Euclidean
+  distances and link-length distributions differ. No topology-superiority claim.
+  Two forced-frequency probes are not a converged resonance sweep.
+- Grid2D8 adapter matched original 0002 u/v bits at 161 source ticks and 861
+  external-probe snapshot pairs (`results/0003-legacy-regression.json`). All 12
+  protected old source/spec/report/analyzer files passed original SHA receipts.
+- `QR3OBS01` schema 1 records derived fields and palettes, not full module u/v
+  restart checkpoints. Replay reads frames without a physics engine; seek drops
+  live state. L explicitly restarts a fresh seeded live fixture at tick 0.
+- Separate `viewer/` Bevy package/lockfile; root remains graphics-free. Build
+  single-job (`CARGO_BUILD_JOBS=1`). Default LowPower graphics preference follows
+  user's practice: **Raphael iGPU for visuals, RTX 5060 Ti reserved for models**.
+  Override explicitly if needed; startup logs actual adapter/backend.
+- Native default adapter verified: AMD Ryzen 9 7950X / RADV RAPHAEL_MENDOCINO,
+  IntegratedGpu, Vulkan, radv Mesa 26.2.6-arch1.1; X11 window on Wayland/XWayland.
+  Earlier NVIDIA witnesses retained. No sustained FPS benchmark; 30/60 are caps.
+- Real-window LIVE/REPLAY witnesses at both caps, alternate camera, selection,
+  filters, UI bindings and repeated seeks matched headless bytes/fields.
+  Final receipts: `results/0003-igpu-live-60-final`, `0003-igpu-replay-30-final`,
+  `0003-igpu-c26-live-final`; each has 67 audited rows, 21 ticks, IDs 0/2184/4095.
+  Cubic26 replay and synthetic labeling also checked. Corrupted recording exits
+  1 before window/engine startup with checksum error. Synthetic fixture injects
+  a labeled nonfinite flag, not observed instability. Automated validation is
+  distinct from exhaustive human mouse/keyboard testing.
+- Actual iGPU captures and measured shell plot are curated under `docs/figures/`;
+  raw recordings, witnesses and screenshots stay ignored. Launch/controls:
+  `viewer/README.md`. Normal launch starts paused in REPLAY.
+- Local gates: 21 root Rust tests, 10 Python tests, one viewer test, strict
+  Clippy/Ruff, formatting, root release/rustdoc/doctests, Python compilation,
+  native viewer build, independent analysis and old-file preservation.
+  New isolated headless viewer CI job supplements original three jobs.
+  Implementation [hosted CI 43364632227](https://github.com/Cognis-11-Inc/qr-neural-memory-system/actions/runs/43364632227)
+  passed all four jobs (root Rust, Python 3.12/3.14, isolated Bevy viewer).
+  The measured-results commit follows separately; check its own CI on resumption.
+
+No new learning, resonance, memory, resilience or emergence success. 0002 T
+remains negative and R indeterminate. Next bounded research step is a separately
+registered convergence/transport investigation before Stage P. Do not tune frozen
+0001/0002/0003 after seeing results. Viewer slices are not neuron lesions.
+
+## Previous delivery: Experiment 0002 T/R
 
 The user explicitly authorized **execute Stages T and R, preserve Experiment
 0001 unchanged**, and requested clean progression. The separate proposal archive

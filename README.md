@@ -4,7 +4,7 @@ An experimental, Rust-first investigation of a mutable, QR-inspired computationa
 
 We investigate what the substrate's rules actually permit. Useful memory behavior and any unexpected computation must be measured, reproduced, and explained before they become claims.
 
-Follow the [experiment progression index](docs/EXPERIMENTS.md) for separate designs, measured outcomes, and deferred questions. Experiment 0001 remains frozen; Experiment 0002 studies intrinsic dynamics rather than memory retrieval.
+Follow the [experiment progression index](docs/EXPERIMENTS.md) for separate designs, measured outcomes, and deferred questions. Experiments 0001/0002 remain frozen. Experiment 0003 adds a deterministic 16³ lattice and a separate Bevy scientific observatory.
 
 ## Initial direction
 
@@ -74,6 +74,34 @@ cargo run --locked --release --bin experiment_0002 -- results/my-experiment-0002
 
 Raw evidence stays under ignored `results/` folders. Numerical verification uses the Python standard library; optional figures use `requirements-plot.txt`.
 
+## Experiment 0003: volumetric lattice and scientific observatory
+
+Implemented and measured: **4,096 independently configured neurons in 16 × 16 × 16**,
+Cubic6 and Cubic26 policies, plus a Grid2D8 regression adapter. Each neuron still
+owns its actual 8 × 8 color-and-shape configuration. Two complete 111-case suites
+produced byte-identical evidence. Topology and configuration affect propagation;
+no learning, resonance or resilience success is claimed.
+
+The separate Bevy viewer displays measured live or recorded state, with camera
+controls, neuron selection, an actual internal-module panel, slicing and bounded
+replay. Default graphics preference is low power, verified on the AMD Raphael
+iGPU, leaving the 5060 Ti available for models. The scientific engine remains CPU-only.
+
+```sh
+cargo run --locked --release --bin experiment_0003 -- results/my-experiment-0003
+.venv/bin/python -m analysis.experiment_0003 results/my-experiment-0003
+CARGO_BUILD_JOBS=1 cargo run --locked --manifest-path viewer/Cargo.toml -- --recording results/my-experiment-0003/case-0000
+```
+
+The viewer starts paused in REPLAY. Space plays, Period steps, right-drag orbits,
+and typing an ID then Enter selects a neuron. Add `--live` for the same seeded CPU
+fixture. Camera and filters never modify the scientific substrate.
+
+Read the [frozen design](EXPERIMENT_0003.md),
+[measured results and native captures](docs/EXPERIMENT_0003_RESULTS.md), and
+[viewer operator guide and isolated checks](viewer/README.md). Large recordings
+remain local and ignored; generate them into a fresh folder after cloning.
+
 ## Research foundations
 
 The [foundational research reading list](docs/FOUNDATIONAL_PAPERS.md) collects the prior work we will build upon when designing neuron state, local learning rules, and experimental comparisons. It is a research foundation, not evidence that our substrate works. Paper-specific mechanisms and assumptions must be distinguished from our own hypotheses and measured results.
@@ -103,3 +131,6 @@ RUSTDOCFLAGS='-D warnings' cargo doc --locked --no-deps --all-features
 ```
 
 CI additionally sets `RUSTFLAGS='-D warnings'`. Workflow: [Severe CI](https://github.com/Cognis-11-Inc/qr-neural-memory-system/actions/workflows/ci.yml).
+
+The isolated viewer additionally has a headless compilation/test CI job; it does
+not open a window or establish native rendering correctness on GitHub runners.

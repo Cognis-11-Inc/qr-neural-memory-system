@@ -5,9 +5,10 @@
 | 0001 | Can local color-transition traces or ripple dynamics retrieve associations? | Implemented and measured; negative registered result | [Frozen design](../EXPERIMENT_0001.md) | [Results and failures](EXPERIMENT_0001_RESULTS.md) |
 | 0002 T/R | Can configuration-dependent intrinsic oscillations transmit signals and show controlled spectral selectivity? | Implemented and measured: T negative at four hops; R indeterminate | [Frozen registration](../EXPERIMENT_0002.md) | [Results, controls and figures](EXPERIMENT_0002_RESULTS.md) |
 | 0002 P | Can resonance condition persistent reconfiguration? | Deferred; not authorized for this delivery | Requires separate registration | No results |
+| 0003 | How do volumetric topology and configuration affect dynamics, and can a viewer reproduce measured state? | Implemented and measured: 111 cases × two identical runs; native iGPU viewer verified | [Frozen registration](../EXPERIMENT_0003.md) | [Results and instrument checks](EXPERIMENT_0003_RESULTS.md) |
 | R1 | Does a working distributed association survive partial loss? | Proposed; intact retrieval prerequisite unmet | [Proposed protocol](../EXPERIMENT_R1.md) | No resilience measurements |
 
-Experiment 0001's sources, parameters, negative results, and raw evidence remain
+Experiments 0001/0002's sources, parameters, results, and raw evidence remain
 unchanged. New experiments have separate runners and output folders. A software
 test pass is distinct from a scientific result; an executed negative experiment
 is a completed research deliverable.
@@ -23,3 +24,8 @@ is a completed research deliverable.
   per run, byte-identical evidence independently checked in Python. T fails the
   four-hop normalized-transfer criterion; R remains numerically indeterminate.
   Neither failed criteria nor thresholds were revised after inspection.
+- 2026-11-13 03:34:26 UTC (Nov 12 local): Experiment 0003 registration frozen
+  in `5a112c1`, before measurements; implementation checkpoint `e9d9dca`.
+- 2026-11-13 UTC: 111 volumetric/legacy/control cases executed twice with
+  identical evidence. Native Bevy live/replay checks matched headless data on
+  Raphael iGPU. No plasticity, resonance success, memory or resilience claimed.

@@ -4,7 +4,9 @@
 
 Read this file, `HANDOFF.md`, `README.md`, `PRINCIPLES.md`, and `HYPOTHESES.md`, then inspect `git status`, the current branch, and recent commits before editing. For Experiment 0001, also read `EXPERIMENT_0001.md` and `docs/EXPERIMENT_0001_RESULTS.md`. Preserve existing user work. Recheck recorded facts against the checkout; a handoff is not live evidence.
 
-For current Experiment 0002 work, read `EXPERIMENT_0002.md`, `docs/EXPERIMENT_0002_RESULTS.md`, and `docs/EXPERIMENTS.md`. Keep designs, raw evidence, and results separate so progression remains inspectable.
+For historical Experiment 0002 work, read `EXPERIMENT_0002.md`, `docs/EXPERIMENT_0002_RESULTS.md`, and `docs/EXPERIMENTS.md`. Keep designs, raw evidence, and results separate so progression remains inspectable.
+
+For Experiment 0003, read `EXPERIMENT_0003.md`, `docs/EXPERIMENT_0003_RESULTS.md`, and `viewer/README.md`. Preserve Experiments 0001/0002 unchanged. Root physics and versioned observations are authoritative; Bevy is an isolated consumer. Default visuals to the low-power iGPU; reserve the 5060 Ti for models unless explicitly overridden. Distinguish configured frame caps from measured FPS and synthetic label fixtures from engine observations.
 
 ## Research direction
 
