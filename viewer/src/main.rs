@@ -60,6 +60,7 @@ struct Session {
     filters: Filters,
     history: VecDeque<Snapshot>,
     dirty: bool,
+    experiment4: Option<(String, f64)>,
 }
 impl Session {
     fn new(recording: Recording, live: bool) -> io::Result<Self> {
@@ -92,6 +93,7 @@ impl Session {
             },
             history: VecDeque::new(),
             dirty: true,
+            experiment4: None,
         })
     }
     fn label(&self) -> &'static str {
@@ -144,6 +146,9 @@ impl Session {
         self.dirty = true;
     }
     fn toggle_live(&mut self) {
+        if self.experiment4.is_some() {
+            return;
+        }
         self.running = false;
         if self.live.is_some() {
             let i = self.index;
@@ -681,13 +686,18 @@ fn refresh_scene(
         "ACTIVITY max-module/channel |u| / FIXED linear 0..1"
     };
     let d = s.shown.diagnostic();
+    let experiment = s.experiment4.as_ref().map_or_else(
+        || "EXPERIMENT 0003".to_string(),
+        |(arm, dt)| format!("EXPERIMENT 0004 / FROZEN / A2182 B2186 / {arm} / dt{dt}"),
+    );
+    let dt = s.experiment4.as_ref().map_or(0.1, |(_, dt)| *dt);
     status.0 = format!(
-        "EXPERIMENT 0003 / {} / {} / {}\nTick {:03} / t={:.1} / 4,096 addressable nodes / nonfinite={}\n{}\nSlice {:?}={} / region {} / ID entry: {}",
+        "{experiment} / {} / {} / {}\nTick {:03} / t={:.1} / 4,096 addressable nodes / nonfinite={}\n{}\nSlice {:?}={} / region {} / ID entry: {}",
         s.label(),
         s.shown.case.topology.name(),
         if s.running { "RUNNING" } else { "PAUSED" },
         s.shown.tick,
-        s.shown.tick as f64 * 0.1,
+        s.shown.tick as f64 * dt,
         d.nonfinite,
         legend,
         s.filters.axis,
@@ -934,6 +944,12 @@ fn main() -> io::Result<()> {
     let mut camera_b = false;
     let mut synthetic = false;
     let mut adapter = None;
+    let mut experiment4 = false;
+    let mut selected = None;
+    let mut slice_z = None;
+    let mut start_frame = 0;
+    let mut play = false;
+    let mut replay_hz = 20.0;
     while let Some(a) = args.next() {
         match a.as_str() {
             "--recording" => {
@@ -942,7 +958,39 @@ fn main() -> io::Result<()> {
                         .ok_or_else(|| io::Error::other("missing path"))?,
                 )
             }
+            "--select" => {
+                selected = Some(
+                    args.next()
+                        .ok_or_else(|| io::Error::other("missing ID"))?
+                        .parse::<usize>()
+                        .map_err(io::Error::other)?,
+                )
+            }
+            "--slice-z" => {
+                slice_z = Some(
+                    args.next()
+                        .ok_or_else(|| io::Error::other("missing plane"))?
+                        .parse::<usize>()
+                        .map_err(io::Error::other)?,
+                )
+            }
+            "--frame" => {
+                start_frame = args
+                    .next()
+                    .ok_or_else(|| io::Error::other("missing frame index"))?
+                    .parse::<usize>()
+                    .map_err(io::Error::other)?
+            }
+            "--play" => play = true,
+            "--replay-hz" => {
+                replay_hz = args
+                    .next()
+                    .ok_or_else(|| io::Error::other("missing replay cadence"))?
+                    .parse::<f64>()
+                    .map_err(io::Error::other)?
+            }
             "--live" => live = true,
+            "--experiment-0004" => experiment4 = true,
             "--witness" => {
                 witness = Some(PathBuf::from(
                     args.next()
@@ -967,18 +1015,58 @@ fn main() -> io::Result<()> {
             _ => return Err(io::Error::other(format!("unknown argument {a}"))),
         }
     }
-    let mut recording = Recording::load(&path).map_err(|e| {
-        io::Error::other(format!(
-            "Recording rejected before engine/window startup: {e}"
-        ))
-    })?;
+    if experiment4 && (live || synthetic || witness.is_some()) {
+        return Err(io::Error::other(
+            "0004 supports measured REPLAY only; LIVE/synthetic/0003 witness prohibited",
+        ));
+    }
+    let (mut recording, metadata) = if experiment4 {
+        let (r, f) = qr_neural_memory_system::propagation_0004::load_replay(&path)?;
+        (r, Some((f.arm.name().to_string(), f.dt)))
+    } else {
+        (
+            Recording::load(&path).map_err(|e| {
+                io::Error::other(format!(
+                    "Recording rejected before engine/window startup: {e}"
+                ))
+            })?,
+            None,
+        )
+    };
     if synthetic {
         for f in &mut recording.frames {
             f.synthetic = true;
             f.neurons[0].nonfinite = 1;
         }
     }
-    let s = Session::new(recording, live)?;
+    let mut s = Session::new(recording, live)?;
+    s.experiment4 = metadata;
+    if start_frame >= s.recording.frames.len()
+        || selected.is_some_and(|id| id >= POPULATION)
+        || slice_z.is_some_and(|z| z >= s.shown.case.topology.dimensions()[2])
+        || !replay_hz.is_finite()
+        || !(0.1..=60.0).contains(&replay_hz)
+        || (live && (start_frame != 0 || replay_hz.to_bits() != 20.0_f64.to_bits()))
+    {
+        return Err(io::Error::other(
+            "invalid startup selection/slice/frame/cadence; alternate cadence is replay-only",
+        ));
+    }
+    if !live {
+        s.seek(start_frame);
+    }
+    if let Some(id) = selected {
+        s.select(id);
+    }
+    if let Some(z) = slice_z {
+        s.filters.axis = Some(2);
+        s.filters.plane = z;
+    }
+    s.running = play;
+    eprintln!(
+        "Startup view: selected={} tick={} Z={:?} play={} replay_hz={}",
+        s.selected, s.shown.tick, slice_z, play, replay_hz
+    );
     eprintln!(
         "Observatory opened {}: 4096 nodes, engine_instances={}",
         s.label(),
@@ -1004,13 +1092,18 @@ fn main() -> io::Result<()> {
         .insert_resource(w)
         .insert_resource(orbit)
         .insert_resource(FrameCap(fps))
-        .insert_resource(Time::<Fixed>::from_hz(20.0))
+        .insert_resource(Time::<Fixed>::from_hz(replay_hz))
         .insert_resource(ClearColor(Color::srgb(0.018, 0.025, 0.04)))
         .add_plugins(
             DefaultPlugins
                 .set(WindowPlugin {
                     primary_window: Some(Window {
-                        title: "QR Neural Network | Experiment 0003 Observatory".into(),
+                        title: if experiment4 {
+                            "QR Neural Network | Experiment 0004 Frozen Medium"
+                        } else {
+                            "QR Neural Network | Experiment 0003 Observatory"
+                        }
+                        .into(),
                         resolution: (1380, 940).into(),
                         present_mode: PresentMode::AutoNoVsync,
                         ..default()
@@ -1069,6 +1162,11 @@ mod tests {
         s.seek(0);
         assert_eq!(s.shown, first);
         assert!(s.live.is_none());
+        s.experiment4 = Some(("AB+".to_string(), 0.05));
+        let before = s.shown.clone();
+        s.toggle_live();
+        assert!(s.live.is_none());
+        assert_eq!(s.shown, before);
         s.shown.synthetic = true;
         assert_eq!(s.label(), "SYNTHETIC TEST FIXTURE");
     }

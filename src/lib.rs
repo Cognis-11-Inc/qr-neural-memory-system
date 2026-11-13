@@ -3,8 +3,10 @@
 pub mod experiment;
 pub mod experiment_0002;
 pub mod experiment_0003;
+pub mod experiment_0004;
 pub mod lattice;
 pub mod observation;
+pub mod propagation_0004;
 pub mod topology;
 
 /// Number of computational cells in the initial substrate.
