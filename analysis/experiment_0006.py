@@ -535,11 +535,8 @@ def waveform_diagnostics(root):
 
 def numerical(root, audited):
     output = []
-    complete = all(
-        (root / f"n-{config}-s{seed}-d{dt}/COMPLETE").exists()
-        for config, seed in (("homogeneous", 7), ("heterogeneous", 7), ("heterogeneous", 19))
-        for dt in (0.05, 0.025, 0.0125)
-    )
+    expected = {ident for ident, stage in planned() if stage == "N"}
+    complete = all((root / ident / "COMPLETE").exists() for ident in expected)
     if not complete:
         return dict(complete=False, short_pass=False, long_pass=False, comparisons=[])
     for config, seed in (("homogeneous", 7), ("heterogeneous", 7), ("heterogeneous", 19)):
@@ -564,10 +561,10 @@ def numerical(root, audited):
                     and ratio <= 0.35,
                 )
             )
-    cases = [r for r in audited if r["id"].startswith("n-")]
+    cases = [r for r in audited if r["id"] in expected]
     energy_ok = len(cases) == 12 and all(r["max_energy_drift"] <= 0.01 for r in cases)
     return dict(
-        complete=energy_ok,
+        complete=len(cases) == 12,
         energy_pass=energy_ok,
         short_pass=energy_ok and all(r["passed"] for r in output if r["time"] <= 32),
         long_pass=energy_ok and all(r["passed"] for r in output),

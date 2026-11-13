@@ -531,3 +531,20 @@ Remaining:finish all registered stages and repeat, independent structural/causal
 gates, actual native iGPU comparison, figures/report/package, final full local
 checks and protected hashes, separate implementation/results commits, push and
 remote/hosted CI. Do not claim current measurements complete until ledger verifies.
+
+0006 instrument verification update: local31 Rust/21 Python/3 viewer tests and
+all strict format/lint/build/docs gates pass. The first native launch exposed a
+QR6 loader extension filter left at q5f; only the NEW loader was corrected to
+q6f, with a new disk/corruption regression test. Retained failed log is
+`results/0006-native/unit-r3.log`. Successful native source R3 and module9 neighbor
+R2 captures/receipts independently match full observation and both palette hashes,
+exact counts8/7,spacing1.8 and0engines on Raphael/Vulkan/radv. Endpoint palettes
+are cross-checked against scientific frames; --region scripts all/shell/interior.
+
+All4 selected fine exposures have byte-identical Pafter, Jaccard1, and worst
+coarse/fine field difference<0.24% through32 (registered1.5% limit). C reset/
+ablation runs are still proceeding; do not infer their final verdict yet.
+Gate tests now separately exercise missing zero controls, long-only failure and
+energy failure (completed FAIL is distinct from incomplete NOT_RUN). This did
+not change any thresholds or actual positive N conclusion. Audit caches retain
+source/input binding and are rechecked after verifier instrumentation changes.

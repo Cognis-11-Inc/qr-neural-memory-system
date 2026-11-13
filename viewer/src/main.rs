@@ -1408,6 +1408,7 @@ fn main() -> io::Result<()> {
     let mut decay_audit = None;
     let mut selected = None;
     let mut slice_z = None;
+    let mut region = 0_u8;
     let mut start_frame = 0;
     let mut play = false;
     let mut replay_hz = 20.0;
@@ -1426,6 +1427,14 @@ fn main() -> io::Result<()> {
                         .parse::<usize>()
                         .map_err(io::Error::other)?,
                 )
+            }
+            "--region" => {
+                region = match args.next().as_deref() {
+                    Some("all") => 0,
+                    Some("shell") => 1,
+                    Some("interior") => 2,
+                    _ => return Err(io::Error::other("region must be all,shell,interior")),
+                };
             }
             "--slice-z" => {
                 slice_z = Some(
@@ -1523,7 +1532,30 @@ fn main() -> io::Result<()> {
     let mut morphology = None;
     let (mut recording, metadata, stream) = if experiment6 {
         let (r, f) = qr_neural_memory_system::morphic_0006::load_replay(&path)?;
-        morphology = Some(Morphology::load(&path, f.module)?);
+        if !path.join("COMPLETE").exists() {
+            return Err(io::Error::other("QR6 replay requires completed case"));
+        }
+        let m = Morphology::load(&path, f.module)?;
+        if r.frames[0]
+            .neurons
+            .iter()
+            .map(|n| n.palette)
+            .collect::<Vec<_>>()
+            != m.before
+            || r.frames
+                .last()
+                .expect("nonempty QR6")
+                .neurons
+                .iter()
+                .map(|n| n.palette)
+                .collect::<Vec<_>>()
+                != m.after
+        {
+            return Err(io::Error::other(
+                "QR6 endpoint palettes disagree with morphology metadata",
+            ));
+        }
+        morphology = Some(m);
         (r, Some((f.label, f.dt)), None)
     } else if decay {
         let mut replay = DecayRecording::open(&path)?;
@@ -1588,6 +1620,7 @@ fn main() -> io::Result<()> {
         s.filters.axis = Some(2);
         s.filters.plane = z;
     }
+    s.filters.region = region;
     s.running = play;
     eprintln!(
         "Startup view: selected={} tick={} Z={:?} play={} replay_hz={}",

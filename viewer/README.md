@@ -217,6 +217,7 @@ synthetic substitute or old witness mode is allowed. Source module9/27 and the
 registered case ID are labeled; tick/time use actual recorded dt. Checkpoints
 have unequal intervals. Spacing remains1.8 with the same -/=,Backslash,R controls.
 
+`--region all|shell|interior` scripts spatial filtering without changing the graph.
 The default overlay is **recorded final Pafter-Pbefore**, not wave amplitude:
 gray0 changed modules,blue1,yellow2–3,red4+. M toggles this overlay to the usual
 activity/palette view. Selection shows exact recorded BEFORE and FINAL AFTER

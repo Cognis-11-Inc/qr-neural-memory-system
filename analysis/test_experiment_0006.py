@@ -4,6 +4,7 @@ import struct
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 import numpy as np
 
@@ -13,6 +14,7 @@ from analysis.experiment_0006 import (
     fnv,
     internal,
     morph,
+    numerical,
     planned,
     scores_from_history,
     variant,
@@ -42,6 +44,43 @@ class MorphologyTests(unittest.TestCase):
         smoothed = scores_from_history(history)
         self.assertAlmostEqual(smoothed[2182, 0], 1.5e-8, delta=1e-22)
         self.assertEqual(len(planned()), 190)
+
+    def test_numerical_gates_fail_without_relaxing_short_or_energy_limits(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            expected = [ident for ident, stage in planned() if stage == "N"]
+            for ident in expected:
+                (root / ident).mkdir()
+                (root / ident / "COMPLETE").touch()
+            audited = [dict(id=ident, max_energy_drift=0.001) for ident in expected]
+
+            def state(_root, ident, time):
+                dt = float(ident.split("-d")[-1])
+                value = 1 + 0.1 * dt * dt * time
+                return dict(u=np.array([value]), v=np.array([0.0]))
+
+            with patch("analysis.experiment_0006.checkpoint", side_effect=state):
+                result = numerical(root, audited)
+            self.assertTrue(result["short_pass"] and result["long_pass"])
+
+            def late_failure(_root, ident, time):
+                result = state(_root, ident, time)
+                if time == 307.2 and ident.endswith("d0.05"):
+                    result["u"] = np.array([2.0])
+                return result
+
+            with patch("analysis.experiment_0006.checkpoint", side_effect=late_failure):
+                result = numerical(root, audited)
+            self.assertTrue(result["short_pass"])
+            self.assertFalse(result["long_pass"])
+            audited[0]["max_energy_drift"] = 0.011
+            with patch("analysis.experiment_0006.checkpoint", side_effect=state):
+                result = numerical(root, audited)
+            self.assertTrue(result["complete"])
+            self.assertFalse(result["energy_pass"])
+            self.assertFalse(result["short_pass"] or result["long_pass"])
+            (root / "n-zero-d0.0125" / "COMPLETE").unlink()
+            self.assertFalse(numerical(root, audited)["complete"])
 
     def test_refined_snapshot_roundtrip_and_corruption(self):
         label = b"test"

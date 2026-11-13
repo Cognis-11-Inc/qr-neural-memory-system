@@ -586,7 +586,7 @@ pub fn load_replay(path: &Path) -> io::Result<(Recording, Frame)> {
     let mut paths = fs::read_dir(path)?
         .map(|e| e.map(|x| x.path()))
         .collect::<io::Result<Vec<_>>>()?;
-    paths.retain(|p| p.extension().is_some_and(|x| x == "q5f"));
+    paths.retain(|p| p.extension().is_some_and(|x| x == "q6f"));
     paths.sort();
     if paths.is_empty() || paths.len() > 12 {
         return Err(io::Error::other("QR6 replay requires1..12 checkpoints"));
@@ -805,6 +805,25 @@ pub fn variant(
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn disk_replay_uses_qr6_extension_and_rejects_corruption() {
+        let folder = std::env::temp_dir().join(format!("qr6-core-replay-{}", std::process::id()));
+        fs::create_dir(&folder).unwrap();
+        let medium =
+            Medium::new(7, Configuration::Heterogeneous, 0.0125, "A", 9, "disk-test").unwrap();
+        let bytes = medium.state.encode().unwrap();
+        fs::write(folder.join("000000.q6f"), &bytes).unwrap();
+        fs::write(folder.join("ignored.q5f"), b"not QR6").unwrap();
+        let (recording, frame) = load_replay(&folder).unwrap();
+        assert_eq!(recording.frames.len(), 1);
+        assert_eq!(frame.module, 9);
+        assert_eq!(frame, medium.state);
+        let mut corrupt = bytes;
+        corrupt[100] ^= 1;
+        fs::write(folder.join("000000.q6f"), corrupt).unwrap();
+        assert!(load_replay(&folder).is_err());
+        fs::remove_dir_all(folder).unwrap();
+    }
     #[test]
     fn historical_physics_reset_energy_and_serialization() {
         let mut old = crate::morphic_0005::Medium::new(
