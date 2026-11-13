@@ -215,3 +215,26 @@ execution coverage. Scientific gate failure is separate from software test succe
 persistent response passes; long-window accuracy fails and M5-B remains gated.
 The same 63 local edits survive transient reset at both registered grids. This
 is not associative memory. Portable data live under ignored `results/experiment_0005`.
+
+## Experiment 0006: multi-module morphology and causal ablations
+
+The [frozen registration](EXPERIMENT_0006.md) separates refined numerical gates,
+forcing-coordinate diagnosis, single/recolor/shape-swap rules and source/off-source
+causal re-exposure. Prior scientific files remain unchanged. Use a fresh root:
+
+```sh
+cargo run --locked --release --bin experiment_0006 -- results/my-0006 n
+.venv/bin/python -m analysis.experiment_0006 results/my-0006 --stage n
+cargo run --locked --release --bin experiment_0006 -- results/my-0006 d
+cargo run --locked --release --bin experiment_0006 -- results/my-0006 m
+cargo run --locked --release --bin experiment_0006 -- results/my-0006 c
+.venv/bin/python -m analysis.experiment_0006 results/my-0006
+cargo run --locked --release --bin experiment_0006 -- results/my-0006-repeat repeat
+```
+
+D/M/C require the independently evaluated numerical short gate. A failed long
+gate forbids long-time interpretation. `repeat` uses seed19/module9/E1/R3 and
+retains the exact original condition ID. No stage overwrites existing evidence.
+See [QR6 schema](docs/EXPERIMENT_0006_SCHEMA.md) for actual signed checkpoints,
+probe histories, local eligibility and palette arrays. The isolated viewer's
+`--experiment-0006` mode shows recorded before/after morphology at spacing1.8.

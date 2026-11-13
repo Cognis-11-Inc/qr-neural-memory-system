@@ -49,6 +49,75 @@ impl Filters {
         }
     }
 }
+struct Morphology {
+    before: Vec<[u8; 64]>,
+    after: Vec<[u8; 64]>,
+    counts: Vec<usize>,
+    overlay: bool,
+    module: usize,
+    energy: Vec<(u64, f64, f64)>,
+}
+impl Morphology {
+    fn load(path: &std::path::Path, module: usize) -> io::Result<Self> {
+        let load = |name: &str| -> io::Result<Vec<[u8; 64]>> {
+            let bytes = fs::read(path.join(name))?;
+            if bytes.len() != 4096 * 64 || bytes.iter().any(|&x| x > 4) {
+                return Err(io::Error::other("QR6 morphology palette invalid"));
+            }
+            Ok(bytes.as_chunks::<64>().0.to_vec())
+        };
+        let before = load("before.palette")?;
+        let after = load("after.palette")?;
+        let counts = before
+            .iter()
+            .zip(&after)
+            .map(|(a, b)| a.iter().zip(b).filter(|(a, b)| a != b).count())
+            .collect();
+        let data = fs::read_to_string(path.join("metrics.csv"))?;
+        if data.len() > 15_000_000 {
+            return Err(io::Error::other("QR6 metrics too large"));
+        }
+        let mut energy = Vec::new();
+        for line in data.lines().skip(1) {
+            let fields: Vec<_> = line.split(',').collect();
+            if fields.len() != 11 {
+                return Err(io::Error::other("QR6 metrics schema"));
+            }
+            let value = |i: usize| fields[i].parse::<f64>().map_err(io::Error::other);
+            let total = value(2)? + value(3)? + value(4)?;
+            let work = value(6)?;
+            if !total.is_finite() || !work.is_finite() {
+                return Err(io::Error::other("QR6 nonfinite metrics"));
+            }
+            energy.push((fields[0].parse().map_err(io::Error::other)?, total, work));
+        }
+        Ok(Self {
+            before,
+            after,
+            counts,
+            overlay: true,
+            module,
+            energy,
+        })
+    }
+}
+#[derive(Component)]
+struct BeforePaletteCell(usize);
+#[derive(bevy::ecs::system::SystemParam)]
+struct PalettePanels<'w, 's> {
+    after: Query<
+        'w,
+        's,
+        (&'static PaletteCell, &'static mut BackgroundColor),
+        Without<BeforePaletteCell>,
+    >,
+    before: Query<
+        'w,
+        's,
+        (&'static BeforePaletteCell, &'static mut BackgroundColor),
+        Without<PaletteCell>,
+    >,
+}
 #[derive(Resource)]
 struct Session {
     recording: Recording,
@@ -63,6 +132,7 @@ struct Session {
     dirty: bool,
     experiment4: Option<(String, f64)>,
     experiment5: bool,
+    experiment6: Option<Morphology>,
     node_spacing: f32,
     decay: Option<DecayRecording>,
     playback_error: Option<String>,
@@ -100,6 +170,7 @@ impl Session {
             dirty: true,
             experiment4: None,
             experiment5: false,
+            experiment6: None,
             node_spacing: 1.8,
             decay: None,
             playback_error: None,
@@ -559,33 +630,76 @@ fn setup(
                 },
                 InfoText,
             ));
-            p.spawn((
-                Text::new("ACTUAL PERSISTENT MODULES / 8 x 8"),
-                TextFont {
-                    font_size: FontSize::Px(12.0),
+            if s.experiment6.is_some() {
+                p.spawn((
+                    Text::new("RECORDED BEFORE / FINAL AFTER (8 x 8)"),
+                    TextFont {
+                        font_size: FontSize::Px(12.),
+                        ..default()
+                    },
+                ));
+                p.spawn(Node {
+                    flex_direction: FlexDirection::Row,
+                    column_gap: px(12),
                     ..default()
-                },
-            ));
-            p.spawn(Node {
-                width: px(160),
-                height: px(160),
-                flex_wrap: FlexWrap::Wrap,
-                ..default()
-            })
-            .with_children(|grid| {
-                for i in 0..64 {
-                    grid.spawn((
-                        Node {
-                            width: px(18),
-                            height: px(18),
-                            margin: UiRect::all(px(1)),
+                })
+                .with_children(|row| {
+                    for before in [true, false] {
+                        row.spawn(Node {
+                            width: px(128),
+                            height: px(128),
+                            flex_wrap: FlexWrap::Wrap,
                             ..default()
-                        },
-                        BackgroundColor(palette(0)),
-                        PaletteCell(i),
-                    ));
-                }
-            });
+                        })
+                        .with_children(|grid| {
+                            for module in 0..64 {
+                                let mut cell = grid.spawn((
+                                    Node {
+                                        width: px(14),
+                                        height: px(14),
+                                        margin: UiRect::all(px(1)),
+                                        ..default()
+                                    },
+                                    BackgroundColor(palette(0)),
+                                ));
+                                if before {
+                                    cell.insert(BeforePaletteCell(module));
+                                } else {
+                                    cell.insert(PaletteCell(module));
+                                }
+                            }
+                        });
+                    }
+                });
+            } else {
+                p.spawn((
+                    Text::new("ACTUAL PERSISTENT MODULES / 8 x 8"),
+                    TextFont {
+                        font_size: FontSize::Px(12.0),
+                        ..default()
+                    },
+                ));
+                p.spawn(Node {
+                    width: px(160),
+                    height: px(160),
+                    flex_wrap: FlexWrap::Wrap,
+                    ..default()
+                })
+                .with_children(|grid| {
+                    for i in 0..64 {
+                        grid.spawn((
+                            Node {
+                                width: px(18),
+                                height: px(18),
+                                margin: UiRect::all(px(1)),
+                                ..default()
+                            },
+                            BackgroundColor(palette(0)),
+                            PaletteCell(i),
+                        ));
+                    }
+                });
+            }
             p.spawn((
                 Text::new(""),
                 TextFont {
@@ -656,6 +770,12 @@ fn input_commands(
     if keys.just_pressed(KeyCode::Period) {
         s.running = false;
         s.step();
+    }
+    if keys.just_pressed(KeyCode::KeyM)
+        && let Some(morph) = &mut s.experiment6
+    {
+        morph.overlay = !morph.overlay;
+        s.dirty = true;
     }
     if keys.just_pressed(KeyCode::KeyL) {
         s.toggle_live();
@@ -793,7 +913,7 @@ fn refresh_scene(
         &mut Visibility,
         &mut Transform,
     )>,
-    mut cells: Query<(&PaletteCell, &mut BackgroundColor)>,
+    mut panels: PalettePanels,
     mut status: Single<&mut Text, StatusFilter>,
     mut info: Single<&mut Text, InfoFilter>,
     mut series: Single<&mut Text, SeriesFilter>,
@@ -808,7 +928,14 @@ fn refresh_scene(
         } else {
             Visibility::Hidden
         };
-        material.0 = if activity_value(&s.shown, id.0).is_none() {
+        material.0 = if s.experiment6.as_ref().is_some_and(|m| m.overlay) {
+            match s.experiment6.as_ref().expect("QR6 overlay").counts[id.0] {
+                0 => materials.neutral.clone(),
+                1 => materials.palette[3].clone(),
+                2..=3 => materials.palette[4].clone(),
+                _ => materials.palette[1].clone(),
+            }
+        } else if activity_value(&s.shown, id.0).is_none() {
             materials.invalid.clone()
         } else if s.filters.palette {
             let mut counts = [0; 5];
@@ -834,10 +961,20 @@ fn refresh_scene(
         };
     }
     let n = &s.shown.neurons[s.selected];
-    for (cell, mut color) in &mut cells {
-        color.0 = palette(n.palette[cell.0]);
+    for (cell, mut color) in &mut panels.after {
+        color.0 = palette(
+            s.experiment6
+                .as_ref()
+                .map_or(n.palette[cell.0], |m| m.after[s.selected][cell.0]),
+        );
     }
-    let legend = if s.filters.palette {
+    for (cell, mut color) in &mut panels.before {
+        color.0 =
+            palette(s.experiment6.as_ref().expect("QR6 before panel").before[s.selected][cell.0]);
+    }
+    let legend = if s.experiment6.as_ref().is_some_and(|m| m.overlay) {
+        "RECORDED FINAL MORPHOLOGY DIFF / gray0 blue1 yellow2-3 red4+ / M toggles"
+    } else if s.filters.palette {
         "PERSISTENT PALETTE / glyph = dominant module color"
     } else if !s.filters.activity {
         "ACTIVITY OVERLAY OFF"
@@ -847,7 +984,13 @@ fn refresh_scene(
         "ACTIVITY max-module/channel |u| / FIXED linear 0..1"
     };
     let d = s.shown.diagnostic();
-    let experiment = if s.experiment5 {
+    let experiment = if let Some(morph) = &s.experiment6 {
+        let (label, dt) = s.experiment4.as_ref().expect("QR6 metadata");
+        format!(
+            "EXPERIMENT 0006 / CHECKPOINT REPLAY / {label} / dt{dt} / input module{}",
+            morph.module
+        )
+    } else if s.experiment5 {
         let (label, dt) = s.experiment4.as_ref().expect("0005 replay metadata");
         format!("EXPERIMENT 0005 / CHECKPOINT REPLAY / {label} / dt{dt}")
     } else if s.decay.is_some() {
@@ -913,6 +1056,20 @@ fn refresh_scene(
         n.velocity27[3],
         n.nonfinite
     );
+    if let Some(morph) = &s.experiment6 {
+        info.0.push_str(&format!(
+            "\nRecorded changed positions: {} / 64",
+            morph.counts[s.selected]
+        ));
+        if let Some((_, energy, work)) = morph
+            .energy
+            .iter()
+            .find(|(tick, _, _)| *tick == s.shown.tick)
+        {
+            info.0
+                .push_str(&format!("\nGlobal E={energy:.6e}\nSwitch work={work:.6e}"));
+        }
+    }
     let mut text = String::from("MEASURED HISTORY / max |u|\n");
     let history: Vec<_> = if s.live.is_some() || s.decay.is_some() {
         s.history.iter().collect()
@@ -1215,6 +1372,18 @@ fn capture_frame(
             orbit.radius,
             usize::from(s.live.is_some())
         );
+        let receipt = if let Some(m) = &s.experiment6 {
+            format!(
+                "{receipt}morphology_before={:016x} morphology_after={:016x} changed_modules={} module={} overlay={}\n",
+                qr_neural_memory_system::observation::checksum(&m.before[s.selected]),
+                qr_neural_memory_system::observation::checksum(&m.after[s.selected]),
+                m.counts[s.selected],
+                m.module,
+                m.overlay
+            )
+        } else {
+            receipt
+        };
         fs::write(path.with_extension("txt"), receipt).expect("capture receipt");
     }
     if c.ticks == 60 {
@@ -1232,6 +1401,7 @@ fn main() -> io::Result<()> {
     let mut adapter = None;
     let mut experiment4 = false;
     let mut experiment5 = false;
+    let mut experiment6 = false;
     let mut node_spacing = 1.8_f32;
     let mut capture = None;
     let mut decay = false;
@@ -1293,6 +1463,7 @@ fn main() -> io::Result<()> {
                         .ok_or_else(|| io::Error::other("missing capture path"))?,
                 ))
             }
+            "--experiment-0006" => experiment6 = true,
             "--experiment-0005" => experiment5 = true,
             "--live" => live = true,
             "--experiment-0004" => experiment4 = true,
@@ -1330,21 +1501,31 @@ fn main() -> io::Result<()> {
             _ => return Err(io::Error::other(format!("unknown argument {a}"))),
         }
     }
-    if experiment4 && experiment5 {
+    if [experiment4, experiment5, experiment6]
+        .into_iter()
+        .filter(|&x| x)
+        .count()
+        > 1
+    {
         return Err(io::Error::other("choose one experiment replay mode"));
     }
     if !node_spacing.is_finite() || !(1.0..=3.0).contains(&node_spacing) {
         return Err(io::Error::other("node spacing must be finite in1..3"));
     }
-    if (experiment4 || experiment5) && (live || synthetic || witness.is_some()) {
+    if (experiment4 || experiment5 || experiment6) && (live || synthetic || witness.is_some()) {
         return Err(io::Error::other(
-            "0004/0005 support measured REPLAY only; LIVE/synthetic/0003 witness prohibited",
+            "0004/0005/0006 support measured REPLAY only; LIVE/synthetic/0003 witness prohibited",
         ));
     }
     if decay_audit.is_some() && !decay {
         return Err(io::Error::other("decay audit requires --decay-0004"));
     }
-    let (mut recording, metadata, stream) = if decay {
+    let mut morphology = None;
+    let (mut recording, metadata, stream) = if experiment6 {
+        let (r, f) = qr_neural_memory_system::morphic_0006::load_replay(&path)?;
+        morphology = Some(Morphology::load(&path, f.module)?);
+        (r, Some((f.label, f.dt)), None)
+    } else if decay {
         let mut replay = DecayRecording::open(&path)?;
         let first = replay.frame(0)?;
         (
@@ -1380,6 +1561,7 @@ fn main() -> io::Result<()> {
     let mut s = Session::new(recording, live)?;
     s.experiment4 = metadata;
     s.experiment5 = experiment5;
+    s.experiment6 = morphology;
     s.node_spacing = node_spacing;
     s.decay = stream;
     if start_frame >= s.frame_count()
@@ -1449,7 +1631,9 @@ fn main() -> io::Result<()> {
             DefaultPlugins
                 .set(WindowPlugin {
                     primary_window: Some(Window {
-                        title: if experiment5 {
+                        title: if experiment6 {
+                            "QR Neural Network | Experiment 0006 Morphology Observatory"
+                        } else if experiment5 {
                             "QR Neural Network | Experiment 0005 Checkpoint Replay"
                         } else if experiment4 {
                             "QR Neural Network | Experiment 0004 Frozen Medium"
@@ -1491,6 +1675,41 @@ fn main() -> io::Result<()> {
 mod tests {
     use super::*;
     use qr_neural_memory_system::lattice::Case;
+    #[test]
+    fn authoritative_morphology_panels_and_replay_guard() {
+        let folder = std::env::temp_dir().join(format!("qr6-viewmodel-{}", std::process::id()));
+        fs::create_dir(&folder).unwrap();
+        let first = Lattice::new(Case::default()).unwrap().observe();
+        let before: Vec<_> = first.neurons.iter().map(|n| n.palette).collect();
+        let mut after = before.clone();
+        for color in after[2182].iter_mut().take(8) {
+            *color = (*color + 1) % 5;
+        }
+        after[2183][9] = (after[2183][9] + 1) % 5;
+        fs::write(folder.join("before.palette"), before.concat()).unwrap();
+        fs::write(folder.join("after.palette"), after.concat()).unwrap();
+        fs::write(folder.join("metrics.csv"),"tick,time,kinetic,onsite,coupling,loss,switch_work,drift,peak,velocity_peak,nonfinite\n0,0,0,1,0,0,0,0,1,0,0\n").unwrap();
+        let m = Morphology::load(&folder, 9).unwrap();
+        assert_eq!(m.counts[2182], 8);
+        assert_eq!(m.counts[2183], 1);
+        assert_eq!(m.counts[0], 0);
+        assert_eq!(m.before[2182], before[2182]);
+        assert_eq!(m.after[2182], after[2182]);
+        let mut session = Session::new(
+            Recording {
+                frames: vec![first.clone()],
+            },
+            false,
+        )
+        .unwrap();
+        session.experiment4 = Some(("unit-only-qr6".into(), 0.025));
+        session.experiment6 = Some(m);
+        session.toggle_live();
+        assert!(session.live.is_none());
+        assert_eq!(session.shown, first);
+        assert_eq!(session.node_spacing, 1.8);
+        fs::remove_dir_all(folder).unwrap();
+    }
     #[test]
     fn spacing_is_pure_display_and_picking_uses_display_endpoints() {
         use qr_neural_memory_system::topology::Topology;

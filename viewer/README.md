@@ -209,3 +209,28 @@ Optional `--capture results/capture.png` saves an actual native screenshot after
 spacing, selected world position, camera radius, engine count), then exits at 60.
 The receipt uses `QR-DISPLAY-RECEIPT-v1` FNV over scientific observation fields;
 it excludes display spacing/camera. It is not a sustained-FPS measurement.
+
+## Experiment 0006 morphology replay
+
+`--experiment-0006 --recording CASE` reads QR6 checkpoints only. No live engine,
+synthetic substitute or old witness mode is allowed. Source module9/27 and the
+registered case ID are labeled; tick/time use actual recorded dt. Checkpoints
+have unequal intervals. Spacing remains1.8 with the same -/=,Backslash,R controls.
+
+The default overlay is **recorded final Pafter-Pbefore**, not wave amplitude:
+gray0 changed modules,blue1,yellow2–3,red4+. M toggles this overlay to the usual
+activity/palette view. Selection shows exact recorded BEFORE and FINAL AFTER
+8×8 panels side by side, with change count,global mechanical energy and switch
+work. Both panels use actual palette bytes, including when viewing earlier ticks;
+the fixed final-difference overlay is not a claim that edits already occurred
+at that earlier time. Numeric u27/v27 remain module27 fields even for module9
+injection. Full signed source-module traces are in the scientific CSV.
+
+```sh
+CARGO_BUILD_JOBS=1 cargo run --locked --manifest-path viewer/Cargo.toml -- --experiment-0006 --recording results/experiment_0006/m-s7-m27-E1-R2-d0.025 --frame 5 --select 2182 --slice-z 8
+```
+
+`--capture` also records the selected before/after palette integrity checksums,
+exact changed count,input module and overlay state. These are native instrument
+receipts,not a substitute for independent scientific verification. A REUSED
+ledger entry has no duplicate frames: open its explicitly named source trajectory.

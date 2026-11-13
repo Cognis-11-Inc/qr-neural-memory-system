@@ -490,3 +490,44 @@ input bytes;all numerical conclusions are unchanged. The B runner explicitly
 rejects execution with the failed registered gate. All7 measured zero controls
 stay exactly zero;local documentation links resolve. Historical44-file hashes
 still match. No generated dataset/archive was committed.
+
+## Experiment 0006 active delivery (2026-11-13)
+
+User authorized the Downloads 0006 command as the next slice. Baseline was clean
+main77be6ef. New registration frozen before data in `578870c`; actual rules,
+190 logical IDs, reuse and thresholds are in `EXPERIMENT_0006.md`. Preflight
+inventory records exact M5 argmax/call sites. All55 historical scientific files
+are protected by `docs/EXPERIMENT_0006_PROTECTED_SHA256.txt`.
+
+New `morphic_0006` copies the frozen M5 equations/order into a separate engine,
+adds dt.0125, explicit module9/27 and QR6 schema. R0/R1/R2/R3 are separate rules;
+R2 recolors up to8 positions, R3 swaps up to4 disjoint internal edges preserving
+histograms. V/H/S are local and all rules/thresholds were frozen before outcomes.
+No minimum count or target. C contrasts source-only/off-source/all/shuffled
+variants under UNIT and explicit energy-matched input. No retrieval experiment.
+
+M6-N12 runs completed; independent short and long gates PASS. Homogeneous307.2
+relative errors9.1311% (.05/.025) and2.2823% (.025/.0125); heterogeneous7:
+8.6430%/2.1616%; heterogeneous19:7.9264%/1.9793%. Ratios~.25; registered energy
+bounds and exact zero controls pass. These new limits were informed by M5.
+M5's failed gates remain unchanged. Four matched old/new seed7 full-field arrays
+through307.2 are byte-identical. Independent verifier is not a second integration.
+
+D/M/C are now running serially in `results/experiment_0006`; process session/log
+information is transient, inspect FINISHED-stage markers and COMPLETE/REUSED
+folders rather than guessing. D10,M48,C120logical/98new were registered; one
+preselected repeat remains to run. Audit watch verifies completed cases, rederives
+all palette edits, checks local histories for6full-module probes, and generates
+all-module eligibility CSV.gz plus before/after JSONL. Audit caches bind source
+bytes captured at process start and exact raw-file hashes; inspection-only older
+receipts were preserved in a separate cache folder during instrumentation work.
+
+Viewer QR6 replay compiles, with recorded final morphology-count overlay and
+actual before/final-after panels, input-module/energy/switch-work labels and no
+live substitution. Spacing1.8 and old modes remain. Native witness is pending
+actual adaptive data; tests cover pure panel/count bindings and replay guard.
+
+Remaining:finish all registered stages and repeat, independent structural/causal
+gates, actual native iGPU comparison, figures/report/package, final full local
+checks and protected hashes, separate implementation/results commits, push and
+remote/hosted CI. Do not claim current measurements complete until ledger verifies.
