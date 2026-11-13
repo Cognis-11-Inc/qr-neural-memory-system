@@ -11,6 +11,11 @@ from pathlib import Path
 from analysis.experiment_0005 import require
 
 
+def sha_file(path):
+    with path.open("rb") as stream:
+        return hashlib.file_digest(stream, "sha256").hexdigest()
+
+
 def package(root, native, repeat):
     verification = json.loads((root / "verification.json").read_text())
     require(len(verification["runs"]) == 51, "expected 51 completed primary runs")
@@ -91,16 +96,14 @@ def package(root, native, repeat):
     writer = csv.writer(manifest)
     writer.writerow(("path", "sha256"))
     for file in signed:
-        writer.writerow(
-            (file.relative_to(root).as_posix(), hashlib.sha256(file.read_bytes()).hexdigest())
-        )
+        writer.writerow((file.relative_to(root).as_posix(), sha_file(file)))
     (root / "SIGNED_FIELDS_SHA256.csv").write_text(manifest.getvalue())
     entries["SIGNED_FIELDS_SHA256.csv"] = root / "SIGNED_FIELDS_SHA256.csv"
     checksums = io.StringIO()
     writer = csv.writer(checksums)
     writer.writerow(("path", "sha256"))
     for name, file in sorted(entries.items()):
-        writer.writerow((name, hashlib.sha256(file.read_bytes()).hexdigest()))
+        writer.writerow((name, sha_file(file)))
     (root / "FILE_SHA256.csv").write_text(checksums.getvalue())
     entries["FILE_SHA256.csv"] = root / "FILE_SHA256.csv"
     for name, files in (
@@ -121,7 +124,7 @@ def package(root, native, repeat):
         print(
             destination,
             destination.stat().st_size,
-            hashlib.sha256(destination.read_bytes()).hexdigest(),
+            sha_file(destination),
         )
     with zipfile.ZipFile(root / "AGENT_REPORT.zip") as archive:
         for row in csv.DictReader(io.StringIO(archive.read("FILE_SHA256.csv").decode())):

@@ -463,3 +463,30 @@ Next bounded research requires a NEW long-window refinement registration, then
 boundary controls. A source-held-fixed/off-source ablation is a separate question.
 Do not resume gated B without a new design; do not retroactively change the old
 0/8 convergence failure or this experiment's thresholds.
+
+### 0005 delivery receipt
+
+Results commit `c324782d3b3674fe24fef915cf1affad1e7aa13e` pushed to public
+`Cognis-11-Inc/qr-neural-memory-system`; remote main SHA matched. Hosted
+[Severe CI 43493397756](https://github.com/Cognis-11-Inc/qr-neural-memory-system/actions/runs/43493397756)
+passed all4 jobs (Rust,Python3.12,Python3.14,isolated Bevy). This small receipt
+and streaming package-hash cleanup follow that validated results commit; verify
+current-HEAD CI separately rather than attributing the earlier run to it.
+
+Delivery copies in `/home/cognis/Downloads`:
+
+- `QR_Neural_Memory_Experiment_0005_Data_2026-11-13.zip`:84,263,243bytes,
+  SHA256 `a9c9987c2309fc4b1fbe4ad7accd6df2237d137d0b0c325038f6e0df610633ab`.
+- `QR_Neural_Memory_Experiment_0005_Full_Fields_2026-11-13.zip`:638,555,357bytes,
+  SHA256 `44118fb9a59a8d9b59a9c104b952a179140aa4cf6a38741e295c8a7a3304f1ce`.
+- `QR_Neural_Memory_Experiment_0005_Report_2026-11-13.md`,standalone report.
+
+Both archives pass ZIP CRC and every member SHA check; Downloads copies match.
+The report/data archive includes the root CPU source and frozen include files;
+a fresh extraction builds `experiment_0005` release without Bevy or the viewer.
+Package SHA hashing streams files,avoiding loading the639MB archive into RAM.
+Final fresh independent verification binds its cache to verifier source and
+input bytes;all numerical conclusions are unchanged. The B runner explicitly
+rejects execution with the failed registered gate. All7 measured zero controls
+stay exactly zero;local documentation links resolve. Historical44-file hashes
+still match. No generated dataset/archive was committed.

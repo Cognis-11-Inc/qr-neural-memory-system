@@ -102,7 +102,7 @@ Five media (homogeneous 7, heterogeneous 7/19, rearranged 7/19), five arms each
 palette histogram and module 27 color; the 8×8 arrangement changes coefficients.
 All frozen palettes remain byte-identical. Fifty checkpoint/sign superposition
 comparisons pass; maximum absolute signed u/v residual **1.5543122344752192e-15**,
-below 1 e-10×max(1, max|A|+|B|). Magnitude envelopes were not summed as fields.
+below 1e-10×max(1, max|A|+|B|). Magnitude envelopes were not summed as fields.
 
 AB+ cumulative neuron reach at max-module|u|>=1e-6 through 32:
 
@@ -125,7 +125,7 @@ heterogeneous 7 AB+, source A has 16 separated envelope peaks, midpoint 18, and 
 B20 during 32 time units; their max-module envelopes each cross threshold once.
 Boundary-face probe 2191=(15, 8, 8) has 2 crossings (one subsequent) and 9 separated
 peaks. Homogeneous 2191 has 3 crossings and 15 peaks. Corner 0 never crosses in
-these short examples. Peak separation>=1, threshold 1 e-6, strict local maxima,
+these short examples. Peak separation>=1, threshold 1e-6, strict local maxima,
 and below-threshold reset rules were frozen before data.
 
 A recrossing is not by itself evidence of neighbor-return excitation:local
@@ -138,7 +138,7 @@ finite-window transient DFTs, not steady-state gains or resolved resonance peaks
 ## M5-C: bounded experience-dependent changes survive transient reset
 
 Seed 7 heterogeneous, dt .05/.025. Each module integrates its own v² over[0, 8].
-At 8 each neuron chooses its largest local-history module; integral>=1 e-8 permits
+At 8 each neuron chooses its largest local-history module; integral>=1e-8 permits
 one cyclic palette edit (P+1)%5. No target, global reward or neuron-ID exception.
 The rule is local to a neuron's own history; it is not specifically a detector
 of energy received from neighbors. A single synchronized edit opportunity,
