@@ -7,6 +7,7 @@ use bevy::{
     window::PresentMode,
 };
 use qr_neural_memory_system::{
+    decay_0004::DecayRecording,
     lattice::Lattice,
     observation::{Recording, Snapshot},
     topology::POPULATION,
@@ -61,6 +62,8 @@ struct Session {
     history: VecDeque<Snapshot>,
     dirty: bool,
     experiment4: Option<(String, f64)>,
+    decay: Option<DecayRecording>,
+    playback_error: Option<String>,
 }
 impl Session {
     fn new(recording: Recording, live: bool) -> io::Result<Self> {
@@ -94,6 +97,8 @@ impl Session {
             history: VecDeque::new(),
             dirty: true,
             experiment4: None,
+            decay: None,
+            playback_error: None,
         })
     }
     fn label(&self) -> &'static str {
@@ -111,14 +116,57 @@ impl Session {
             self.dirty = true;
         }
     }
+    fn frame_count(&self) -> usize {
+        self.decay
+            .as_ref()
+            .map_or(self.recording.frames.len(), DecayRecording::len)
+    }
     fn seek(&mut self, index: usize) {
         self.live = None;
         self.running = false;
-        self.index = index.min(self.recording.frames.len() - 1);
-        self.shown = self.recording.frames[self.index].clone();
+        let next = index.min(self.frame_count() - 1);
+        if let Some(replay) = &mut self.decay {
+            match replay.frame(next) {
+                Ok(frame) => {
+                    if self.index + 1 != next {
+                        self.history.clear();
+                    }
+                    self.shown = frame;
+                    self.history.push_back(self.shown.clone());
+                    while self.history.len() > 6 {
+                        self.history.pop_front();
+                    }
+                    self.index = next;
+                    self.playback_error = None;
+                }
+                Err(error) => {
+                    error!("Playback stopped: {error}");
+                    self.playback_error = Some(error.to_string());
+                }
+            }
+        } else {
+            self.index = next;
+            self.shown = self.recording.frames[next].clone();
+        }
         self.dirty = true;
     }
     fn step(&mut self) {
+        if self.decay.is_some() {
+            if self.dirty {
+                return;
+            }
+            if self.index + 1 < self.frame_count() {
+                let running = self.running;
+                self.seek(self.index + 1);
+                if self.playback_error.is_none() {
+                    self.running = running;
+                }
+            } else {
+                self.running = false;
+                self.dirty = true;
+            }
+            return;
+        }
         if let Some(engine) = self.live.as_mut() {
             if !engine.advance() {
                 self.running = false;
@@ -202,6 +250,79 @@ struct Materials {
     palette: Vec<Handle<StandardMaterial>>,
     neutral: Handle<StandardMaterial>,
     invalid: Handle<StandardMaterial>,
+}
+#[derive(Resource)]
+struct DecayAudit {
+    path: Option<PathBuf>,
+    writer: Option<BufWriter<File>>,
+    last: Option<u64>,
+    hold: u32,
+}
+impl DecayAudit {
+    fn new(path: Option<PathBuf>) -> io::Result<Self> {
+        let writer = if let Some(p) = &path {
+            let mut w = BufWriter::new(
+                fs::OpenOptions::new()
+                    .write(true)
+                    .create_new(true)
+                    .open(p)?,
+            );
+            writeln!(w, "tick,fnv1a,id,peak,velocity_peak,u27,v27,contiguous")?;
+            Some(w)
+        } else {
+            None
+        };
+        Ok(Self {
+            path,
+            writer,
+            last: None,
+            hold: 0,
+        })
+    }
+}
+fn audit_decay(s: Res<Session>, mut audit: ResMut<DecayAudit>, mut commands: Commands) {
+    if audit.writer.is_none() || s.decay.is_none() {
+        return;
+    }
+    let tick = s.shown.tick;
+    if audit.last == Some(tick) {
+        if s.index + 1 == s.frame_count() {
+            audit.hold += 1;
+            if audit.hold == 5 {
+                let path = audit.path.as_ref().unwrap().with_extension("png");
+                commands
+                    .spawn(Screenshot::primary_window())
+                    .observe(save_to_disk(path));
+            }
+            if audit.hold == 30 {
+                audit
+                    .writer
+                    .as_mut()
+                    .unwrap()
+                    .flush()
+                    .expect("decay audit flush");
+                fs::write(audit.path.as_ref().unwrap().with_extension("complete"),"Native full-tick replay audit completed; independently verify contiguous tick rows and hashes.\n").expect("decay audit marker");
+                commands.write_message(AppExit::Success);
+            }
+        }
+        return;
+    }
+    let contiguous = audit.last.map_or(tick == 0, |last| tick == last + 1);
+    let hash = qr_neural_memory_system::decay_0004::observation_checksum(&s.shown)
+        .expect("validated observed fields");
+    let d = s.shown.diagnostic();
+    let n = &s.shown.neurons[s.selected];
+    writeln!(
+        audit.writer.as_mut().unwrap(),
+        "{tick},{hash:016x},{},{:.17e},{:.17e},{:.17e},{:.17e},{contiguous}",
+        s.selected,
+        d.peak,
+        d.velocity_peak,
+        n.module27[0],
+        n.velocity27[0]
+    )
+    .expect("decay audit row");
+    audit.last = Some(tick);
 }
 #[derive(Resource)]
 struct FrameCap(u32);
@@ -498,7 +619,7 @@ fn input_commands(
         s.seek(0);
     }
     if keys.just_pressed(KeyCode::End) {
-        let i = s.recording.frames.len() - 1;
+        let i = s.frame_count() - 1;
         s.seek(i);
     }
     if keys.just_pressed(KeyCode::ArrowUp) {
@@ -610,7 +731,7 @@ fn input_commands(
     }
 }
 fn fixed_tick(mut s: ResMut<Session>) {
-    if s.running {
+    if s.running && (s.decay.is_none() || !s.dirty) {
         s.step();
     }
 }
@@ -686,17 +807,25 @@ fn refresh_scene(
         "ACTIVITY max-module/channel |u| / FIXED linear 0..1"
     };
     let d = s.shown.diagnostic();
-    let experiment = s.experiment4.as_ref().map_or_else(
-        || "EXPERIMENT 0003".to_string(),
-        |(arm, dt)| format!("EXPERIMENT 0004 / FROZEN / A2182 B2186 / {arm} / dt{dt}"),
-    );
+    let experiment = if s.decay.is_some() {
+        "EXPERIMENT 0004 EXTENSION / FROZEN / A2182 B2186 / AB+".to_string()
+    } else {
+        s.experiment4.as_ref().map_or_else(
+            || "EXPERIMENT 0003".to_string(),
+            |(arm, dt)| format!("EXPERIMENT 0004 / FROZEN / A2182 B2186 / {arm} / dt{dt}"),
+        )
+    };
     let dt = s.experiment4.as_ref().map_or(0.1, |(_, dt)| *dt);
+    let tick_label = if s.decay.is_some() {
+        format!("{:04}/3072", s.shown.tick)
+    } else {
+        format!("{:03}", s.shown.tick)
+    };
     status.0 = format!(
-        "{experiment} / {} / {} / {}\nTick {:03} / t={:.1} / 4,096 addressable nodes / nonfinite={}\n{}\nSlice {:?}={} / region {} / ID entry: {}",
+        "{experiment} / {} / {} / {}\nTick {tick_label} / t={:.1} / 4,096 addressable nodes / nonfinite={}\n{}\nSlice {:?}={} / region {} / ID entry: {}",
         s.label(),
         s.shown.case.topology.name(),
         if s.running { "RUNNING" } else { "PAUSED" },
-        s.shown.tick,
         s.shown.tick as f64 * dt,
         d.nonfinite,
         legend,
@@ -705,6 +834,17 @@ fn refresh_scene(
         s.filters.region,
         s.entry
     );
+    if s.decay.is_some() {
+        status.0.push_str(&format!(
+            "\nEVERY TICK / global max|u|={:.4e} max|v|={:.4e} / both <1e-6: {}",
+            d.peak,
+            d.velocity_peak,
+            d.peak < 1e-6 && d.velocity_peak < 1e-6
+        ));
+    }
+    if let Some(error) = &s.playback_error {
+        status.0.push_str(&format!("\nPLAYBACK STOPPED: {error}"));
+    }
     info.0 = format!(
         "ID {} / ({},{},{}) / degree {}\nSeed {} / {}\nmax |u| = {:.6e}\nmax |v| = {:.6e}\nu27 = [{:.6e}, {:.6e},\n       {:.6e}, {:.6e}]\nv27 = [{:.6e}, {:.6e},\n       {:.6e}, {:.6e}]\nNONFINITE {}",
         n.id,
@@ -727,7 +867,7 @@ fn refresh_scene(
         n.nonfinite
     );
     let mut text = String::from("MEASURED HISTORY / max |u|\n");
-    let history: Vec<_> = if s.live.is_some() {
+    let history: Vec<_> = if s.live.is_some() || s.decay.is_some() {
         s.history.iter().collect()
     } else {
         s.recording.frames[..=s.index].iter().collect()
@@ -945,6 +1085,8 @@ fn main() -> io::Result<()> {
     let mut synthetic = false;
     let mut adapter = None;
     let mut experiment4 = false;
+    let mut decay = false;
+    let mut decay_audit = None;
     let mut selected = None;
     let mut slice_z = None;
     let mut start_frame = 0;
@@ -991,6 +1133,16 @@ fn main() -> io::Result<()> {
             }
             "--live" => live = true,
             "--experiment-0004" => experiment4 = true,
+            "--decay-0004" => {
+                experiment4 = true;
+                decay = true;
+            }
+            "--decay-audit" => {
+                decay_audit = Some(PathBuf::from(
+                    args.next()
+                        .ok_or_else(|| io::Error::other("missing audit path"))?,
+                ))
+            }
             "--witness" => {
                 witness = Some(PathBuf::from(
                     args.next()
@@ -1020,9 +1172,22 @@ fn main() -> io::Result<()> {
             "0004 supports measured REPLAY only; LIVE/synthetic/0003 witness prohibited",
         ));
     }
-    let (mut recording, metadata) = if experiment4 {
+    if decay_audit.is_some() && !decay {
+        return Err(io::Error::other("decay audit requires --decay-0004"));
+    }
+    let (mut recording, metadata, stream) = if decay {
+        let mut replay = DecayRecording::open(&path)?;
+        let first = replay.frame(0)?;
+        (
+            Recording {
+                frames: vec![first],
+            },
+            Some(("AB+ / EVERY TICK".to_string(), 0.1)),
+            Some(replay),
+        )
+    } else if experiment4 {
         let (r, f) = qr_neural_memory_system::propagation_0004::load_replay(&path)?;
-        (r, Some((f.arm.name().to_string(), f.dt)))
+        (r, Some((f.arm.name().to_string(), f.dt)), None)
     } else {
         (
             Recording::load(&path).map_err(|e| {
@@ -1030,6 +1195,7 @@ fn main() -> io::Result<()> {
                     "Recording rejected before engine/window startup: {e}"
                 ))
             })?,
+            None,
             None,
         )
     };
@@ -1041,7 +1207,8 @@ fn main() -> io::Result<()> {
     }
     let mut s = Session::new(recording, live)?;
     s.experiment4 = metadata;
-    if start_frame >= s.recording.frames.len()
+    s.decay = stream;
+    if start_frame >= s.frame_count()
         || selected.is_some_and(|id| id >= POPULATION)
         || slice_z.is_some_and(|z| z >= s.shown.case.topology.dimensions()[2])
         || !replay_hz.is_finite()
@@ -1054,6 +1221,9 @@ fn main() -> io::Result<()> {
     }
     if !live {
         s.seek(start_frame);
+    }
+    if let Some(error) = &s.playback_error {
+        return Err(io::Error::other(error.clone()));
     }
     if let Some(id) = selected {
         s.select(id);
@@ -1073,6 +1243,7 @@ fn main() -> io::Result<()> {
         usize::from(live)
     );
     let w = Witness::new(witness, live)?;
+    let audit = DecayAudit::new(decay_audit)?;
     let orbit = if camera_b {
         Orbit {
             yaw: -1.4,
@@ -1090,6 +1261,7 @@ fn main() -> io::Result<()> {
     App::new()
         .insert_resource(s)
         .insert_resource(w)
+        .insert_resource(audit)
         .insert_resource(orbit)
         .insert_resource(FrameCap(fps))
         .insert_resource(Time::<Fixed>::from_hz(replay_hz))
@@ -1130,7 +1302,7 @@ fn main() -> io::Result<()> {
             )
                 .chain(),
         )
-        .add_systems(Last, limit_fps)
+        .add_systems(Last, (audit_decay, limit_fps).chain())
         .run();
     Ok(())
 }

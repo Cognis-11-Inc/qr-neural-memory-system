@@ -10,8 +10,8 @@ current worktree and recent commits. For the latest scope also read
 `EXPERIMENT_0002.md`, `docs/EXPERIMENT_0002_RESULTS.md`, and
 `docs/EXPERIMENTS.md`. The latest delivery additionally requires
 `EXPERIMENT_0003.md`, `docs/EXPERIMENT_0003_RESULTS.md`, and `viewer/README.md`.
-For the current delivery read `EXPERIMENT_0004.md` and
-`docs/EXPERIMENT_0004_RESULTS.md`. The reports distinguish software checks,
+For the current delivery also read `EXPERIMENT_0004_EXTENSION.md`,
+`docs/EXPERIMENT_0004_EXTENSION_RESULTS.md`, and `viewer/README.md`. The reports distinguish software checks,
 measured experiment failures, replay, and hosted delivery evidence.
 
 ## Project and user requirements
@@ -31,7 +31,68 @@ measured experiment failures, replay, and hosted delivery evidence.
 - Research reading list: `docs/FOUNDATIONAL_PAPERS.md`, imported unchanged from
   Downloads. Bibliographic claims were not verified during import.
 
-## Latest delivery: Experiment 0004
+## Latest delivery: 3,072-tick every-tick extension
+
+User clarified that the simulation horizon, not playback duration, should triple
+and every tick be observable. They also requested a readable report/data package
+for another agent to analyze without seeing the cube. Registration `2c39004`
+precedes extension implementation and measurements. Original0004 remains frozen.
+
+- New `src/decay_0004.rs`, CLI `experiment_0004_decay`; reuse the unmodified
+  `propagation_0004::Medium`. Current homogeneous seed7/Cubic6/AB+ fixture only,
+  A2182/B2186 module27/channel1, dt0.1,3072updates/time307.2. No new forcing,
+  damping/coupling tuning, plasticity or memory experiment.
+- `results/experiment_0004-decay-a` and `-b` compare byte-identical, including
+  independent generated reports. Both include3073observations, all integer
+  ticks0..3072. All12old full-state checkpoints through1024 match exactly.
+  Palettes unchanged; boundedness/nonfinite screens pass. Independent Python
+  decoded/checksummed every frame and recomputed global metrics/quiet decisions.
+- Stream SHA256:
+  `050f089c0939f1a27d5f3dd55d7f3bed478cbe0632e2ef0c87d97e5721cf169f`.
+  New `QR4DEC01` stores actual palette once and per-neuron max|u|/|v|, signed
+  module27u/v, squared sums and nonfinite count every tick (~625MiB/run).
+  It is measured aggregate replay, not all-module dynamical restart state.
+- **Sustained measured quiet tail:** both global maxima<1e-6 for ticks2579..3072
+  (494ticks). Final max|u|8.135888521014845e-8; max|v|1.1769358165198218e-7.
+  Nonzero. Required final quiet tail128ticks passes. Instantaneous active-neuron
+  count differs from the velocity-aware quiet test. No physical/convergence or
+  information-erasure claim: original long-window timestep screen failed all8arms;
+  no new timestep refinement at the extended horizon was performed.
+- New viewer `--decay-0004 --recording results/experiment_0004-decay-a --select 2184`
+  uses on-demand indexed disk reads, bounded recent6frames, full cube by default.
+  Default20ticks/s (~154seconds if renderer keeps up), Space/pause, Period/Right
+  exact1tick, Home/End0/3072. Catch-up is gated by scene refresh so slow rendering
+  slows playback instead of skipping. Global amplitudes and threshold are shown.
+  LIVE/synthetic/old witness substitution is blocked; corrupt reads stop visibly.
+- Actual native audit `results/0004-decay-native/audit.csv` has3073contiguous
+  tick/hash/field rows, independently matched to headless data; endpoint PNG
+  inspected. Default Raphael iGPU/Vulkan/radv Mesa26.2.6-arch1.1, XWayland.
+  No synthetic keyboard events or bell tests used. This is scene-update/native
+  evidence, not monitor scanout or sustained-FPS benchmarking.
+- `analysis/decay_0004.py` creates `agent-report/REPORT.md`, metadata and complete
+  global3073-row metrics,32neuron every-tick probe series, all4096spatial summaries,
+  rules/source and integrity hashes. `AGENT_REPORT.zip` is about6.4MiB, omits the
+  large binary stream and contains a native audit receipt. Identical bundles in
+  both run folders. Optional plot: `analysis/plot_decay_0004.py`.
+- Small public text report and measured decay plot:
+  `docs/EXPERIMENT_0004_EXTENSION_RESULTS.md`, `docs/figures/experiment_0004_decay.png`.
+  Raw data, bundles and native audit stay ignored. Original scientific files
+  retain their SHA receipts; shared root exports/viewer are deliberate integration.
+
+Local final checks passed:24root Rust tests,15Python tests,1viewer test, strict
+Clippy/Ruff, formatting, root release/doctests/rustdoc, Python compilation and
+native build. ZIP CRC/file SHA hashes and3073global/98336probe/4096spatial row
+counts were verified. Ready-to-share copies are in Downloads:
+`QR_Neural_Memory_3072_Tick_Report_2026-11-13.md` and
+`QR_Neural_Memory_3072_Tick_Data_2026-11-13.zip`. The latter is the6.4MiB bundle;
+start with REPORT.md inside. Check current commit's push/CI separately.
+
+Next research remains a separately registered timestep/window refinement before
+interpreting long-time dynamics physically or adding persistent interaction traces.
+Do not amend any frozen design to hide the prior convergence failure. User wants
+full ticks and a viewer-free report; display-only slowdowns do not extend physics.
+
+## Previous delivery: Experiment 0004
 
 User requested extended propagation, dual waves and superposition through a
 frozen lattice; persistent changes are explicitly deferred. Registration frozen

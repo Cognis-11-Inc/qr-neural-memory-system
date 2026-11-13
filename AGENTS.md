@@ -10,6 +10,8 @@ For Experiment 0003, read `EXPERIMENT_0003.md`, `docs/EXPERIMENT_0003_RESULTS.md
 
 For Experiment 0004, read `EXPERIMENT_0004.md` and `docs/EXPERIMENT_0004_RESULTS.md`. Preserve prior scientific sources/registrations/reports. Use signed full fields for superposition, never sums of activity magnitudes. The 0004 viewer is replay-only; never start the 0003 single-source engine under a dual-source label. Long-window timestep sensitivity failed in every registered arm; do not hide that failure behind boundedness, appearance or superposition success. Persistent interaction traces/plasticity remain deferred.
 
+For the 3,072-tick every-tick extension read `EXPERIMENT_0004_EXTENSION.md` and `docs/EXPERIMENT_0004_EXTENSION_RESULTS.md`. It is one homogeneous seed7 AB+ fixture, not a retuned 35-case suite. Preserve the original 0004 sources/criteria/results. Replay is disk-indexed and cannot skip automatic ticks to catch up. Distinguish instantaneous below-threshold display, a sustained final quiet tail, and exact zero. Include the prior timestep-accuracy failure in exported agent reports.
+
 ## Research direction
 
 - Aim for roughly **80% Rust / 20% Python**, subject to change. This is an architectural direction, not a line-count quota.

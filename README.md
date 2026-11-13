@@ -124,6 +124,30 @@ and [replay controls](viewer/README.md). Experiment 0004 playback is explicitly
 replay-only, with both source IDs and the arm labeled. Persistent changes from
 interacting disturbances remain a later experiment.
 
+## Every-tick 3,072-tick extension and portable agent report
+
+The current homogeneous AB+ case now has a separately registered **3,072-tick**
+run, with all **3,073 integer observations** saved. Two runs and native replay
+agree exactly. Both global maxima remain below1e-6 from tick2579 through3072;
+final displacement/velocity peaks are8.14e-8/1.18e-7, nonzero. This measured decay
+is subject to the original failed long-window timestep screen.
+
+```sh
+cargo run --locked --release --bin experiment_0004_decay -- results/my-decay
+.venv/bin/python -m analysis.decay_0004 results/my-decay
+CARGO_BUILD_JOBS=1 cargo run --locked --manifest-path viewer/Cargo.toml -- --decay-0004 --recording results/my-decay --select 2184
+```
+
+The stream reads one frame at a time; full cube is the default. Space plays,
+Period steps exactly one tick. Rendering stalls slow playback rather than skip
+recorded ticks. Inspect the global displacement/velocity readout alongside color.
+
+The analyzer creates `agent-report/REPORT.md` and `AGENT_REPORT.zip`: clear setup,
+rules, every-tick global data,32neuron traces,4,096spatial summaries and integrity
+hashes. Another agent can analyze these without a viewer/video or the large binary
+stream. Read the [extension registration](EXPERIMENT_0004_EXTENSION.md) and
+[measured report](docs/EXPERIMENT_0004_EXTENSION_RESULTS.md).
+
 ## Research foundations
 
 The [foundational research reading list](docs/FOUNDATIONAL_PAPERS.md) collects the prior work we will build upon when designing neuron state, local learning rules, and experimental comparisons. It is a research foundation, not evidence that our substrate works. Paper-specific mechanisms and assumptions must be distinguished from our own hypotheses and measured results.

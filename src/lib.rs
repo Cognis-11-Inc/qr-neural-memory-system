@@ -1,5 +1,6 @@
 //! QR Neural Memory research: Experiment 0001 and the original activation scaffold.
 
+pub mod decay_0004;
 pub mod experiment;
 pub mod experiment_0002;
 pub mod experiment_0003;

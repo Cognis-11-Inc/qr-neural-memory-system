@@ -146,3 +146,39 @@ magnitude image cannot itself establish superposition. See the
 but **all eight long-window timestep screens failed**. No persistent memory
 trace is claimed. `QR4FLD01` records full active-channel u/v with explicit 0004
 provenance, rather than encoding dual-source data as 0003 snapshots.
+
+## All-tick 3,072-tick replay
+
+```sh
+CARGO_BUILD_JOBS=1 cargo run --locked --manifest-path viewer/Cargo.toml -- --decay-0004 --recording results/experiment_0004-decay-a --select 2184
+```
+
+This separate extension has all ticks0..3072. Full cube, paused, is the default.
+Space plays at the default20ticks/s; Period/Right advances one tick. Home/End
+seek to0/3072; `--frame N` chooses an exact initial tick. Optional `--slice-z 8`
+shows the central plane. `--replay-hz` changes wall-clock cadence, not dt.
+
+Frames are indexed on disk, with bounded six-frame history. Playback advances
+at most once per rendered application update, waiting for scene refresh; if
+rendering is slow, playback slows without catching up by dropping ticks.
+The header shows global max|u|/max|v| and instantaneous below1e-6 status. This
+is distinct from the inspector's selected-neuron values and from the display
+color floor1e-8. Repeated quiet-tail status is computed offline, not inferred
+from a dark image. The original timestep-convergence failure remains relevant.
+
+For a fresh automated native audit folder (create its parent first):
+
+```sh
+viewer/target/debug/qr-scientific-observatory --decay-0004 --recording results/experiment_0004-decay-a --select 2184 --play --replay-hz 60 --decay-audit results/my-decay-audit/audit.csv
+.venv/bin/python -m analysis.decay_0004 results/experiment_0004-decay-a --audit-only results/my-decay-audit/audit.csv
+```
+
+The audit records each scene-update tick/hash and global/selected fields, captures
+an endpoint PNG and exits after the final frame. Use it without manual seeking;
+independent verification rejects gaps, duplicates and wrong selections/hashes.
+Native audit is separate from monitor scanout or FPS measurement. LIVE, synthetic
+and old witness modes are rejected. Corrupt frame reads stop with a visible error.
+
+The analyzer exports a viewer-free `agent-report/REPORT.md` and `AGENT_REPORT.zip`
+with metadata, rules, every-tick CSVs and all-neuron summaries. See the
+[extension results](../docs/EXPERIMENT_0004_EXTENSION_RESULTS.md).

@@ -7,6 +7,7 @@
 | 0002 P | Can resonance condition persistent reconfiguration? | Deferred; not authorized for this delivery | Requires separate registration | No results |
 | 0003 | How do volumetric topology and configuration affect dynamics, and can a viewer reproduce measured state? | Implemented and measured: 111 cases × two identical runs; native iGPU viewer verified | [Frozen registration](../EXPERIMENT_0003.md) | [Results and instrument checks](EXPERIMENT_0003_RESULTS.md) |
 | 0004 | Do extended dual-source fields obey signed superposition in a frozen medium? | Measured: superposition within roundoff; 0/8 long-window timestep screens pass | [Frozen registration](../EXPERIMENT_0004.md) | [Results and signed fields](EXPERIMENT_0004_RESULTS.md) |
+| 0004 extension | Does the current frozen AB+ signal decay over 3,072 ticks, observed every tick? | Measured: 3,073 frames; 494-tick final quiet tail, nonzero signal; prior accuracy limitation retained | [Extension registration](../EXPERIMENT_0004_EXTENSION.md) | [Results and portable report](EXPERIMENT_0004_EXTENSION_RESULTS.md) |
 | R1 | Does a working distributed association survive partial loss? | Proposed; intact retrieval prerequisite unmet | [Proposed protocol](../EXPERIMENT_R1.md) | No resilience measurements |
 
 Experiments 0001/0002's sources, parameters, results, and raw evidence remain
@@ -34,3 +35,7 @@ is a completed research deliverable.
   identical 35-execution suites, 408 full signed frames per suite. Superposition
   passes the registered tolerance; all eight long-window timestep screens fail.
   Palettes unchanged; persistent interaction traces remain deferred.
+- 2026-11-13: User requested triple horizon and every tick. Extension frozen
+  in `2c39004`; two byte-identical3,073-frame runs,12original-prefix comparisons,
+  independently verified native every-tick replay. Quiet tail begins2579;
+  no exact zero or converged-physical-model claim. Portable agent report added.
