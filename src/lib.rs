@@ -2,6 +2,10 @@
 
 pub mod experiment;
 pub mod experiment_0002;
+pub mod experiment_0003;
+pub mod lattice;
+pub mod observation;
+pub mod topology;
 
 /// Number of computational cells in the initial substrate.
 pub const CELL_COUNT: usize = 4096;

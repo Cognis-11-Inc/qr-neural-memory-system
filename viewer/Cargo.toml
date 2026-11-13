@@ -1,0 +1,23 @@
+[package]
+name = "qr-scientific-observatory"
+version = "0.1.0"
+edition = "2024"
+publish = false
+
+[dependencies]
+qr-neural-memory-system = { path = ".." }
+bevy = { version = "=0.20.0", default-features = false, features = [
+  "std", "async_executor", "multi_threaded", "bevy_asset", "bevy_color",
+  "bevy_image", "bevy_log", "bevy_mesh", "bevy_camera", "bevy_render",
+  "bevy_core_pipeline", "bevy_pbr", "bevy_light", "bevy_shader",
+  "bevy_window", "bevy_winit", "bevy_text", "bevy_ui", "bevy_ui_render",
+  "bevy_gizmos", "bevy_gizmos_render", "default_font", "png", "x11",
+  "tonemapping_luts", "zstd_rust"
+] }
+
+[profile.dev]
+opt-level = 1
+debug = 0
+
+[lints.rust]
+unsafe_code = "forbid"

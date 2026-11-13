@@ -36,6 +36,32 @@ jobs:
       - name: Check tracked files remain unchanged
         run: git diff --exit-code
 
+  viewer:
+    name: Bevy viewer build and tests (no window)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      CARGO_BUILD_JOBS: 1
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: |
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/registry/src/
+            viewer/target/
+          key: viewer-${{ runner.os }}-${{ hashFiles('viewer/Cargo.lock', 'viewer/Cargo.toml', 'rust-toolchain.toml') }}
+      - name: Install Linux window development libraries
+        run: sudo apt-get update && sudo apt-get install -y libx11-dev libxi-dev libxrandr-dev libxcursor-dev libxkbcommon-dev libudev-dev
+      - name: Install pinned toolchain
+        run: rustup show active-toolchain
+      - run: cargo fmt --manifest-path viewer/Cargo.toml -- --check
+      - run: cargo clippy --locked --manifest-path viewer/Cargo.toml --all-targets -- -D warnings
+      - run: cargo test --locked --manifest-path viewer/Cargo.toml
+
   python:
     name: Python ${{ matrix.python }} quality and tests
     runs-on: ubuntu-latest
