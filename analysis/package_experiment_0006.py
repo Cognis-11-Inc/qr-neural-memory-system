@@ -46,6 +46,12 @@ def package(root, native, repeat):
         )
         + "\n"
     )
+    old_manifest = None
+    previous = []
+    if (root / "package-verification.json").exists() and (root / "AGENT_REPORT.zip").exists():
+        previous = json.loads((root / "package-verification.json").read_text())
+        with zipfile.ZipFile(root / "AGENT_REPORT.zip") as old:
+            old_manifest = old.read("SIGNED_FIELDS_SHA256.csv").decode()
     portable, full = {}, {}
     for ident in sorted(expected):
         folder = root / ident
@@ -94,6 +100,8 @@ def package(root, native, repeat):
     for file in Path("docs/figures").glob("experiment_0006*.png"):
         portable[file.as_posix()] = file
         portable["figures/" + file.name] = file
+    portable["INVENTORY.md"] = Path("docs/EXPERIMENT_0006_INVENTORY.md")
+    portable["SCHEMA.md"] = Path("docs/EXPERIMENT_0006_SCHEMA.md")
     signed_manifest = io.StringIO()
     writer = csv.writer(signed_manifest)
     writer.writerow(("path", "sha256"))
@@ -114,14 +122,26 @@ def package(root, native, repeat):
         ("FULL_FIELDS.zip", full, signed_manifest),
     ):
         destination = root / name
-        with zipfile.ZipFile(destination, "w", allowZip64=True) as archive:
-            for member, file in sorted(files.items()):
-                info = zipfile.ZipInfo(member, date_time=(2026, 11, 13, 0, 0, 0))
-                info.compress_type = (
-                    zipfile.ZIP_STORED if file.suffix == ".gz" else zipfile.ZIP_DEFLATED
-                )
-                with file.open("rb") as source, archive.open(info, "w", force_zip64=True) as target:
-                    shutil.copyfileobj(source, target, 1024 * 1024)
+        prior = next((r for r in previous if r["file"] == name), None)
+        reusable = (
+            name == "FULL_FIELDS.zip"
+            and destination.exists()
+            and prior is not None
+            and old_manifest == signed_manifest.getvalue()
+            and sha_file(destination) == prior["sha256"]
+        )
+        if not reusable:
+            with zipfile.ZipFile(destination, "w", allowZip64=True) as archive:
+                for member, file in sorted(files.items()):
+                    info = zipfile.ZipInfo(member, date_time=(2026, 11, 13, 0, 0, 0))
+                    info.compress_type = (
+                        zipfile.ZIP_STORED if file.suffix == ".gz" else zipfile.ZIP_DEFLATED
+                    )
+                    with (
+                        file.open("rb") as source,
+                        archive.open(info, "w", force_zip64=True) as target,
+                    ):
+                        shutil.copyfileobj(source, target, 1024 * 1024)
         with zipfile.ZipFile(destination) as archive:
             require(set(archive.namelist()) == set(files), "ZIP member coverage")
             require(archive.testzip() is None, "ZIP CRC")

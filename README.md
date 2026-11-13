@@ -238,3 +238,16 @@ retains the exact original condition ID. No stage overwrites existing evidence.
 See [QR6 schema](docs/EXPERIMENT_0006_SCHEMA.md) for actual signed checkpoints,
 probe histories, local eligibility and palette arrays. The isolated viewer's
 `--experiment-0006` mode shows recorded before/after morphology at spacing1.8.
+
+
+[Experiment 0006 results](docs/EXPERIMENT_0006_RESULTS.md): refined numerical
+screen passes; both multi-module rules and selected post-reset off-source causal
+gates pass. No associative memory or useful-recall claim. All190 logical cases
+are accounted for as168 executions plus22 explicit reuses, with a separate repeat.
+
+```sh
+.venv/bin/python -m analysis.summarize_0006 results/my-0006
+.venv/bin/python -m analysis.plot_experiment_0006 results/my-0006 docs/figures
+.venv/bin/python -m analysis.report_experiment_0006 results/my-0006 docs/EXPERIMENT_0006_RESULTS.md
+.venv/bin/python -m analysis.package_experiment_0006 results/my-0006 --native results/0006-native --repeat results/my-0006-repeat
+```

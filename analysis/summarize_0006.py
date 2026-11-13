@@ -7,7 +7,7 @@ from pathlib import Path
 
 import numpy as np
 
-from analysis.experiment_0006 import audit_available, decode, require, rows
+from analysis.experiment_0006 import audit_available, checkpoint, compare, decode, require, rows
 
 
 def summarize(root):
@@ -167,6 +167,53 @@ def summarize(root):
                         effect["offsource_effect"]["relative_l2"],
                         effect["offsource_effect"]["absolute_rms"],
                         effect["versus_source_only"]["relative_l2"],
+                    )
+                )
+    with (output / "pair-contrasts.csv").open("w") as stream:
+        writer = csv.writer(stream)
+        writer.writerow(
+            (
+                "seed",
+                "module",
+                "rule",
+                "dt",
+                "budget",
+                "time",
+                "global_all_vs_source_relative_l2",
+                "global_all_vs_source_absolute_rms",
+                "offsource_all_vs_source_relative_l2",
+                "global_off_vs_virgin_relative_l2",
+                "global_source_vs_virgin_relative_l2",
+            )
+        )
+        for result in verification.get("causal", []):
+            if result["kind"] != "ALL":
+                continue
+            prefix = f"c-s{result['seed']}-m{result['module']}-R{result['rule']}-d{result['dt']}"
+            for physical_time in (16, 32):
+                all_state = checkpoint(root, result["id"], physical_time)
+                source_state = checkpoint(
+                    root, prefix + "-SOURCE_ONLY-" + result["budget"], physical_time
+                )
+                off_state = checkpoint(
+                    root, prefix + "-OFF_SOURCE_ONLY-" + result["budget"], physical_time
+                )
+                virgin = checkpoint(root, prefix + "-VIRGIN-UNIT", physical_time)
+                pair = compare(all_state, source_state)
+                mask = np.arange(4096) != 2182
+                writer.writerow(
+                    (
+                        result["seed"],
+                        result["module"],
+                        result["rule"],
+                        result["dt"],
+                        result["budget"],
+                        physical_time,
+                        pair["relative_l2"],
+                        pair["absolute_rms"],
+                        compare(all_state, source_state, mask)["relative_l2"],
+                        compare(off_state, virgin)["relative_l2"],
+                        compare(source_state, virgin)["relative_l2"],
                     )
                 )
     # Structural immutability of all retained checkpoints, including switch states.

@@ -34,6 +34,8 @@ def plot(root, destination):
                 [100 * r[key]["relative_l2"] for r in selected],
                 style,
                 color=color,
+                marker="o",
+                markersize=3,
                 label=f"{config} {seed} {label}",
             )
         metrics = rows(root / f"n-{config}-s{seed}-d0.025" / "metrics.csv")

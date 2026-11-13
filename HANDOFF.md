@@ -548,3 +548,67 @@ Gate tests now separately exercise missing zero controls, long-only failure and
 energy failure (completed FAIL is distinct from incomplete NOT_RUN). This did
 not change any thresholds or actual positive N conclusion. Audit caches retain
 source/input binding and are rechecked after verifier instrumentation changes.
+
+
+## Experiment 0006 final measured delivery
+
+Registration578870c, implementation6904303, instrument checkpoint673eddf. All190
+logical conditions are complete/accounted: N12,D10,M48,C120;168 actual primary
+runs plus22 explicit reuses, then the preselected seed19/module9/E1/R3 repeat.
+Repeat matches all original case files byte-for-byte. No condition is unexecuted.
+375,592 global tick rows,1,052 main signed checkpoints and116 switch snapshots;
+FULL_FIELDS.zip contains1,168 full signed fields. Raw results remain ignored.
+
+N:all33 fixture/checkpoint numerical decisions PASS with .05/.025/.0125 grids;
+maximum energy drift0.14971%, below1%. M5's historical failed criteria unchanged.
+D:argmax mostly follows input27/9; seed19 has one qualified28 exception under27,
+two1 exceptions under9. No rule universally hardcodes27, nor always changes63.
+M:4/4 selected fine structural gates PASS; Pafter byte-identical across grids,
+maximum signed exposure refinement error<0.24%. Recolor and shape-swap candidates
+change multiple internal positions; R3 preserves every neuron's color histogram.
+C:8/8 selected fine off-source causal gates PASS under UNIT and MATCH input.
+Source-only never nearly matches ALL under the registered selected off-source
+mask criterion. Global MATCH OFF/VIRGIN effects at32 are64–89% in selected cases;
+ALL/SOURCE51–91%. These are relative trajectory differences,not improvements or
+additive contributions. Individual-neuron necessity and associative retrieval
+remain untested. M5 R1's own source-only ablation was not retrospectively done.
+
+Independent Python verified every retained field/energy,all rule selections,
+mask/energy identities, probe histories for6 sites, all1052 checkpoint palettes,
+pre/post switch identities and frozen/disabled array equality. This is not a
+second whole-engine integration. All13 zero-input controls remain exactly zero.
+All55 protected old scientific hashes match. Local31 Rust/21 Python/3 viewer
+tests,format,strict lints,release/docs/doctests,Python compile and native build
+pass. Source checkpoint673eddf passed all4 hosted CI jobs:
+https://github.com/Cognis-11-Inc/qr-neural-memory-system/actions/runs/43523723693
+The final results/delivery commit follows it; check its exact HEAD CI separately.
+
+Native screenshots/receipts: results/0006-native (source R3, module9 R2 neighbor).
+Exact observation+palette hashes,count8/7,spacing1.8,0engines match scientific
+files independently. Actual Raphael iGPU/Vulkan/radv/Mesa26.2.6,XWayland. The
+first loader-extension failure is retained and corrected with a disk/corruption
+test. Palette colors/count overlay are separate from amplitude/energy. Full
+source extraction from portable package builds the CPU experiment without Bevy.
+
+Artifacts copied to Downloads (ZIP CRC/member SHA and copy SHA checked):
+
+- `QR_Neural_Memory_Experiment_0006_Report_2026-11-13.md`: 15137 bytes; SHA256 `0d92543270ed29a3be2eb6c12a675525231dd6edf28ecac4c054a614e4831f95`.
+
+- `QR_Neural_Memory_Experiment_0006_Quick_Review_2026-11-13.zip`: 59162143 bytes; SHA256 `18b16c5dccf30eadaf5c327d1668ca95ea2dd9adc886546826f5844a799d52ce`.
+
+- `QR_Neural_Memory_Experiment_0006_Data_2026-11-13.zip`: 1359727214 bytes; SHA256 `e2c9d5a41f97aac40406a856e4c6356d70d1fcf38e69fc9a52bc80048e71003b`.
+
+- `QR_Neural_Memory_Experiment_0006_Full_Fields_2026-11-13.zip`: 3813542776 bytes; SHA256 `999d341abc1184a292b82487f2005bccb4cd716ea14421251233b2dd7330b3b4`.
+
+QUICK_REPORT is a clearly labeled review subset containing report,summary tables,
+all primary palettes,global metrics and original verification receipts. Complete
+eligibility/history/probes/source are in AGENT_REPORT; optional FULL_FIELDS adds
+all exact signed checkpoints. Portable report links and figures resolve locally.
+Final scientific report: docs/EXPERIMENT_0006_RESULTS.md. Reproduction commands
+are in README and EXPERIMENT_0006.md.
+
+No further0006 execution remains. A future task must separately register repeated
+plasticity, retrieval/usefulness or neuron-level necessity tests. Do not infer
+memory,R1 resilience,physical fidelity or generalization from the positive
+structural/trajectory gates. Verify current main/remote SHA and latest hosted CI
+before making a new delivery claim; do not automatically resume old M5-B.
