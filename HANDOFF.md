@@ -1,6 +1,6 @@
 # QR Neural Memory System — handoff
 
-Updated: 2026-11-12 (America/Toronto).
+Updated: 2026-11-13 (America/Toronto).
 
 ## Rehydrate
 
@@ -9,7 +9,9 @@ Read `AGENTS.md`, `README.md`, `PRINCIPLES.md`, `HYPOTHESES.md`,
 current worktree and recent commits. For the latest scope also read
 `EXPERIMENT_0002.md`, `docs/EXPERIMENT_0002_RESULTS.md`, and
 `docs/EXPERIMENTS.md`. The latest delivery additionally requires
-`EXPERIMENT_0003.md`, `docs/EXPERIMENT_0003_RESULTS.md`, and `viewer/README.md`. The reports distinguish software checks,
+`EXPERIMENT_0003.md`, `docs/EXPERIMENT_0003_RESULTS.md`, and `viewer/README.md`.
+For the current delivery read `EXPERIMENT_0004.md` and
+`docs/EXPERIMENT_0004_RESULTS.md`. The reports distinguish software checks,
 measured experiment failures, replay, and hosted delivery evidence.
 
 ## Project and user requirements
@@ -29,7 +31,74 @@ measured experiment failures, replay, and hosted delivery evidence.
 - Research reading list: `docs/FOUNDATIONAL_PAPERS.md`, imported unchanged from
   Downloads. Bibliographic claims were not verified during import.
 
-## Latest delivery: Experiment 0003
+## Latest delivery: Experiment 0004
+
+User requested extended propagation, dual waves and superposition through a
+frozen lattice; persistent changes are explicitly deferred. Registration frozen
+in `4a2283a` before implementation/measurements, no post-result tuning.
+
+- New separate `src/propagation_0004.rs`, `src/experiment_0004.rs`, CLI
+  `experiment_0004`; old scientific sources unchanged. Only `src/lib.rs` exports
+  new modules. Scalar active-channel state uses the exact 0002/0003 coefficients;
+  all 4,096 independent palettes remain frozen. Cubic6 only, dt0.1,1024steps,
+  time102.4; half-step controls dt0.05,2048steps.
+- A2182=(6,8,8), B2186=(10,8,8), module27/channel1. Midpoint2184.
+  Independently integrated A/B/AB+/AB−; 6 primary groups, 2 half-step groups,
+  2 zero controls and old-engine regression =35 executions/suite.
+- `results/experiment_0004-final-a` and `-final-b` compare byte-for-byte identical, including
+  independent analysis. Each has 408 full signed frames. Every frame was
+  checksum-checked independently and a SHA-256 ledger exported:
+  `f0b05245646526228f6a1ad9f8972d883a9e260e20b7cbe565efdf03cc5ac172`.
+  Every-step full-field checks are Rust measurements; independent full-state
+  checks are at recorded checkpoints. Earlier `experiment_0004-a`/`-b` are
+  retained: they lacked the registered time16 per-neuron cumulative peak export.
+  Final suites add `peak_at_time16`, with unchanged equations/conditions/criteria;
+  full signed frame ledgers match the earlier runs. Implementation `f4e97f5`.
+- **Superposition passes** registered tolerance: max u/v residual
+  1.4432899320127035e-15. Midpoint overlap appears at times0.3–0.5 in primaries.
+  Both reinforcement and cancellation depend on local signed phase. Same-sign
+  initial sources can cancel after heterogeneous propagation. No persistent change.
+- **Long-window timestep screen FAILS 0/8:** worst relative combined-field L2
+  errors27.76–30.42%, all worst at time102.4. Boundedness, pretty patterns and
+  roundoff-level linearity do not establish accurate long-time trajectories.
+  All numerical boundedness screens pass; no nonfinite fields; zero controls
+  exactly zero. Whole-observation old 0003 regression matches at all161steps.
+- Extended cumulative reach grows, e.g. homogeneous AB+755→4011 threshold-crossing
+  neurons from time16→102.4. This is cumulative threshold reach, not simultaneous
+  activity, capacity, usable recall or evidence of memory/resilience.
+- `analysis/experiment_0004.py` verifies full signed fields/provenance/coverage,
+  residuals/cross terms, all-tick metrics, spatial arrival consistency and dt
+  sensitivity. Optional `analysis/plot_experiment_0004.py` makes actual signed
+  figures and movie with fixed symmetric log ±1/core±1e-6; no per-frame gain.
+- New `QR4FLD01` format records full scalar u/v plus actual palettes/metadata,
+  separate from 0003's aggregate-only schema. Independent exact decode/checksum,
+  corruption and mixed-provenance guards. Files ~4.46MB, reader ≤12 frames/arm.
+- Shared viewer `--experiment-0004` is **REPLAY ONLY**, labels arm/both sources,
+  frozen medium, dt, tick/time. --live/synthetic/0003-witness rejected; L cannot
+  start the old engine. New startup --select/--slice-z/--frame/--play/--replay-hz
+  make views reproducible without desktop focus; default old controls preserved.
+  Unequal 0004 checkpoint intervals must not be represented as constant dt.
+- Native Raphael actual replay captured in `results/0004-native/`, including
+  26-second `experiment-0004-native-minus.mp4`. The 24-second offline signed-field
+  movie is `results/experiment_0004-signed-plane.mp4`. It is a plot animation,
+  distinct from native screen capture. Actual adapter: RADV RAPHAEL_MENDOCINO,
+  IntegratedGpu/Vulkan/radv Mesa26.2.6-arch1.1, X11 on Wayland/XWayland.
+  Desktop key injection was unreliable; startup controls drove verified native
+  selection/slice/playback. No claim of exhaustive manual testing/FPS benchmark.
+- Local gates:23 Rust tests,12 Python tests,1 viewer test; strict lints, format,
+  root release/docs/doctests, Python compilation, native viewer build. All29
+  protected old experiment files retain original SHA values; `src/lib.rs` only
+  has new exports. Implementation `f4e97f5961b913aa0f7e14aa4e717ff693f4ff02`
+  was pushed and [CI43380113097](https://github.com/Cognis-11-Inc/qr-neural-memory-system/actions/runs/43380113097)
+  passed all four jobs. Final result documentation and the replay-only help
+  label follow separately; check their commit-specific CI on resumption.
+
+Next bounded research step: **new** registration for finer integration/window
+sensitivity. Persistent distributed change from wave interaction is unimplemented
+and remains a later experiment. Preserve 0001–0004 rules/results; do not tune
+retrospectively. R1 and learned retrieval remain untested/undemonstrated.
+
+## Previous delivery: Experiment 0003
 
 User authorized the full volumetric lattice / Bevy observatory proposal while
 preserving both prior experiments. Registration `5a112c14033f9a4a825b290b606d9ed1ca692a2d`

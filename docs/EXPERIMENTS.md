@@ -6,6 +6,7 @@
 | 0002 T/R | Can configuration-dependent intrinsic oscillations transmit signals and show controlled spectral selectivity? | Implemented and measured: T negative at four hops; R indeterminate | [Frozen registration](../EXPERIMENT_0002.md) | [Results, controls and figures](EXPERIMENT_0002_RESULTS.md) |
 | 0002 P | Can resonance condition persistent reconfiguration? | Deferred; not authorized for this delivery | Requires separate registration | No results |
 | 0003 | How do volumetric topology and configuration affect dynamics, and can a viewer reproduce measured state? | Implemented and measured: 111 cases × two identical runs; native iGPU viewer verified | [Frozen registration](../EXPERIMENT_0003.md) | [Results and instrument checks](EXPERIMENT_0003_RESULTS.md) |
+| 0004 | Do extended dual-source fields obey signed superposition in a frozen medium? | Measured: superposition within roundoff; 0/8 long-window timestep screens pass | [Frozen registration](../EXPERIMENT_0004.md) | [Results and signed fields](EXPERIMENT_0004_RESULTS.md) |
 | R1 | Does a working distributed association survive partial loss? | Proposed; intact retrieval prerequisite unmet | [Proposed protocol](../EXPERIMENT_R1.md) | No resilience measurements |
 
 Experiments 0001/0002's sources, parameters, results, and raw evidence remain
@@ -29,3 +30,7 @@ is a completed research deliverable.
 - 2026-11-13 UTC: 111 volumetric/legacy/control cases executed twice with
   identical evidence. Native Bevy live/replay checks matched headless data on
   Raphael iGPU. No plasticity, resonance success, memory or resilience claimed.
+- 2026-11-13: Experiment 0004 frozen in `4a2283a` before measurements; two
+  identical 35-execution suites, 408 full signed frames per suite. Superposition
+  passes the registered tolerance; all eight long-window timestep screens fail.
+  Palettes unchanged; persistent interaction traces remain deferred.

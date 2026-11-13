@@ -102,6 +102,28 @@ Read the [frozen design](EXPERIMENT_0003.md),
 [viewer operator guide and isolated checks](viewer/README.md). Large recordings
 remain local and ignored; generate them into a fresh folder after cloning.
 
+## Experiment 0004: extended propagation and dual-wave interference
+
+Implemented and measured: two identical 35-execution suites, 1,024 steps at
+dt0.1 plus matched-time half-step controls. A-only, B-only, same-polarity and
+opposite-polarity dual-source fields were integrated independently through the
+frozen Cubic6 medium. Full signed-state superposition residuals stayed below
+1.45e-15. **All eight long-window half-step comparisons failed the 10% screen**
+(27.8–30.4% worst relative error). Visible interference does not establish a
+converged trajectory, a persistent change or memory.
+
+```sh
+cargo run --locked --release --bin experiment_0004 -- results/my-experiment-0004
+.venv/bin/python -m analysis.experiment_0004 results/my-experiment-0004
+CARGO_BUILD_JOBS=1 cargo run --locked --manifest-path viewer/Cargo.toml -- --experiment-0004 --recording results/my-experiment-0004/group-01/2 --select 2184 --slice-z 8 --play --replay-hz 0.5
+```
+
+Read the [frozen registration](EXPERIMENT_0004.md),
+[measured results and signed-field figures](docs/EXPERIMENT_0004_RESULTS.md),
+and [replay controls](viewer/README.md). Experiment 0004 playback is explicitly
+replay-only, with both source IDs and the arm labeled. Persistent changes from
+interacting disturbances remain a later experiment.
+
 ## Research foundations
 
 The [foundational research reading list](docs/FOUNDATIONAL_PAPERS.md) collects the prior work we will build upon when designing neuron state, local learning rules, and experimental comparisons. It is a research foundation, not evidence that our substrate works. Paper-specific mechanisms and assumptions must be distinguished from our own hypotheses and measured results.

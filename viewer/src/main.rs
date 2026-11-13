@@ -433,7 +433,7 @@ fn setup(
                 SeriesText,
             ));
         });
-    commands.spawn((Text::new("Right drag: orbit   Middle drag: pan   Wheel: zoom   R: camera reset\nClick node or type ID + Enter; Up/Down: select ID   Space: pause/play   .: step\nLeft/Right: seek recording   Home/End: first/last   L: LIVE restart / REPLAY\nX/Y/Z: slice axis toggle   [ / ]: slice plane   F: all/shell/interior\nN: nodes   E: selected edges   A: activity   P: palette view   G: linear/log scale\nAxes: X red / Y green / Z blue. No resonance or learning is inferred from color."),TextFont{font_size:FontSize::Px(13.0),..default()},TextColor(Color::srgb(0.59,0.69,0.78)),Node{position_type:PositionType::Absolute,left:px(22),bottom:px(16),..default()}));
+    commands.spawn((Text::new("Right drag: orbit   Middle drag: pan   Wheel: zoom   R: camera reset\nClick node or type ID + Enter; Up/Down: select ID   Space: pause/play   .: step\nLeft/Right: seek recording   Home/End: first/last   L: LIVE restart / REPLAY\nX/Y/Z: slice axis toggle   [ / ]: slice plane   F: all/shell/interior\nN: nodes   E: selected edges   A: activity   P: palette view   G: linear/log scale\nAxes: X red / Y green / Z blue. No resonance or learning is inferred from color.".replace("L: LIVE restart / REPLAY", if s.experiment4.is_some() { "REPLAY ONLY / L disabled" } else { "L: LIVE restart / REPLAY" })),TextFont{font_size:FontSize::Px(13.0),..default()},TextColor(Color::srgb(0.59,0.69,0.78)),Node{position_type:PositionType::Absolute,left:px(22),bottom:px(16),..default()}));
 }
 
 fn record_adapter(info: Res<bevy::render::renderer::RenderAdapterInfo>, witness: Res<Witness>) {

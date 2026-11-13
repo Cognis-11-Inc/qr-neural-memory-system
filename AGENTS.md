@@ -8,6 +8,8 @@ For historical Experiment 0002 work, read `EXPERIMENT_0002.md`, `docs/EXPERIMENT
 
 For Experiment 0003, read `EXPERIMENT_0003.md`, `docs/EXPERIMENT_0003_RESULTS.md`, and `viewer/README.md`. Preserve Experiments 0001/0002 unchanged. Root physics and versioned observations are authoritative; Bevy is an isolated consumer. Default visuals to the low-power iGPU; reserve the 5060 Ti for models unless explicitly overridden. Distinguish configured frame caps from measured FPS and synthetic label fixtures from engine observations.
 
+For Experiment 0004, read `EXPERIMENT_0004.md` and `docs/EXPERIMENT_0004_RESULTS.md`. Preserve prior scientific sources/registrations/reports. Use signed full fields for superposition, never sums of activity magnitudes. The 0004 viewer is replay-only; never start the 0003 single-source engine under a dual-source label. Long-window timestep sensitivity failed in every registered arm; do not hide that failure behind boundedness, appearance or superposition success. Persistent interaction traces/plasticity remain deferred.
+
 ## Research direction
 
 - Aim for roughly **80% Rust / 20% Python**, subject to change. This is an architectural direction, not a line-count quota.

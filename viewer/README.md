@@ -55,7 +55,7 @@ highlight and visual spacing are presentation, not measured deformation.
 
 - Header distinguishes `LIVE`, `REPLAY`, and `SYNTHETIC TEST FIXTURE`.
 - Tick is authoritative; time is tick × 0.1 in nondimensional units. Normal play
-  dispatches at 20 Hz; this is not a physical real-time fluid simulation. A
+  dispatches at 20 Hz; this is not a physical real-time fluid simulation. An Experiment 0003
   recorded frame advances eight ticks. Replay only looks up observations.
 - LIVE advances the same headless Rust engine. Camera, render delta, frame caps,
   selection and colors never enter its update. At tick 160 the fixture stops.
@@ -116,3 +116,33 @@ CARGO_BUILD_JOBS=1 cargo test --locked --manifest-path viewer/Cargo.toml
 The CI viewer job compiles/tests without opening a window. Native rendering,
 adapter selection and UI witness results are separately documented in the
 [Experiment 0003 report](../docs/EXPERIMENT_0003_RESULTS.md).
+
+## Experiment 0004: frozen-medium dual-source replay
+
+Generate the separate suite using the root `experiment_0004` runner. Then:
+
+```sh
+CARGO_BUILD_JOBS=1 cargo run --locked --manifest-path viewer/Cargo.toml -- --experiment-0004 --recording results/experiment_0004-a/group-01/2 --select 2184 --slice-z 8 --play --replay-hz 0.5
+```
+
+This shows homogeneous seed7, same-polarity dual sources. Arm folders `0`, `1`,
+`2`, `3` mean A, B, AB+, AB−. `group-00` is heterogeneous seed7;
+`group-06/07` are the half-step seed7 configurations. Header lists both sources,
+arm, timestep and frozen medium. The actual palette stays separately visible.
+**0004 is replay-only**: `--live`, synthetic fixtures and the 0003 witness are
+rejected; L leaves replay unchanged. No single-source substitute engine starts.
+
+0004's twelve checkpoints have unequal simulation-time intervals. Right/Period
+moves to the next recorded checkpoint; `--replay-hz` sets presentation cadence,
+not simulation dt. Time remains exact tick × recorded dt. `--frame N` selects
+an initial recording index (0–11 here); `--select ID` and `--slice-z Z` initialize
+inspection without desktop keyboard focus. `--play` starts playback; default is
+paused. Alternate cadence is restricted to replay. Ordinary 0003 defaults remain.
+
+Activity overlay is still max-module magnitude; inspect signed module27 values
+or the offline signed-plane plots to assess reinforcement/cancellation. A native
+magnitude image cannot itself establish superposition. See the
+[0004 measured report](../docs/EXPERIMENT_0004_RESULTS.md): superposition passed,
+but **all eight long-window timestep screens failed**. No persistent memory
+trace is claimed. `QR4FLD01` records full active-channel u/v with explicit 0004
+provenance, rather than encoding dual-source data as 0003 snapshots.
