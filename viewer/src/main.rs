@@ -62,6 +62,8 @@ struct Session {
     history: VecDeque<Snapshot>,
     dirty: bool,
     experiment4: Option<(String, f64)>,
+    experiment5: bool,
+    node_spacing: f32,
     decay: Option<DecayRecording>,
     playback_error: Option<String>,
 }
@@ -97,6 +99,8 @@ impl Session {
             history: VecDeque::new(),
             dirty: true,
             experiment4: None,
+            experiment5: false,
+            node_spacing: 1.8,
             decay: None,
             playback_error: None,
         })
@@ -377,14 +381,51 @@ fn palette(v: u8) -> Color {
         _ => Color::srgb(0.035, 0.05, 0.075),
     }
 }
-fn position(s: &Snapshot, id: usize) -> Vec3 {
+fn position(s: &Snapshot, id: usize, spacing: f32) -> Vec3 {
     let p = s.neurons[id].position;
     let d = s.case.topology.dimensions();
     Vec3::new(
         p[0] as f32 - (d[0] - 1) as f32 / 2.0,
         p[1] as f32 - (d[1] - 1) as f32 / 2.0,
         p[2] as f32 - (d[2] - 1) as f32 / 2.0,
-    )
+    ) * spacing
+}
+fn fitted_orbit(snapshot: &Snapshot, spacing: f32) -> Orbit {
+    let extent = snapshot
+        .case
+        .topology
+        .dimensions()
+        .into_iter()
+        .max()
+        .unwrap_or(16) as f32;
+    Orbit {
+        radius: 35.0 * extent / 16.0 * spacing,
+        ..Orbit::default()
+    }
+}
+fn change_spacing(s: &mut Session, orbit: &mut Orbit, value: f32) {
+    let value = value.clamp(1.0, 3.0);
+    let ratio = value / s.node_spacing;
+    orbit.radius *= ratio;
+    orbit.target *= ratio;
+    s.node_spacing = value;
+    s.dirty = true;
+}
+fn pick(s: &Session, origin: Vec3, direction: Vec3) -> Option<usize> {
+    let mut best = None;
+    for id in 0..POPULATION {
+        if s.filters.visible(&s.shown, id) {
+            let delta = position(&s.shown, id, s.node_spacing) - origin;
+            let t = delta.dot(direction);
+            if t > 0.0
+                && (delta - direction * t).length() < 0.28
+                && best.is_none_or(|(_, distance)| t < distance)
+            {
+                best = Some((id, t));
+            }
+        }
+    }
+    best.map(|(id, _)| id)
 }
 fn activity_value(s: &Snapshot, id: usize) -> Option<f64> {
     let n = &s.neurons[id];
@@ -442,7 +483,7 @@ fn setup(
         commands.spawn((
             Mesh3d(cube.clone()),
             MeshMaterial3d(activity[0].clone()),
-            Transform::from_translation(position(&s.shown, id)),
+            Transform::from_translation(position(&s.shown, id, s.node_spacing)),
             NodeId(id),
         ));
     }
@@ -589,12 +630,24 @@ fn input_commands(
     if mouse.buttons.pressed(MouseButton::Middle) {
         let yaw = orbit.yaw;
         let right = Vec3::new(yaw.cos(), 0.0, -yaw.sin());
-        orbit.target +=
-            right * (-mouse.motion.delta.x * 0.025) + Vec3::Y * (mouse.motion.delta.y * 0.025);
+        orbit.target += right * (-mouse.motion.delta.x * 0.025 * s.node_spacing)
+            + Vec3::Y * (mouse.motion.delta.y * 0.025 * s.node_spacing);
     }
-    orbit.radius = (orbit.radius * (-mouse.scroll.delta.y * 0.08).exp()).clamp(8.0, 150.0);
+    orbit.radius = (orbit.radius * (-mouse.scroll.delta.y * 0.08).exp()).clamp(
+        2.0 * s.node_spacing,
+        fitted_orbit(&s.shown, s.node_spacing).radius * 5.0,
+    );
     if keys.just_pressed(KeyCode::KeyR) {
-        *orbit = Orbit::default();
+        *orbit = fitted_orbit(&s.shown, s.node_spacing);
+    }
+    for (key, delta) in [(KeyCode::Minus, -0.1), (KeyCode::Equal, 0.1)] {
+        if keys.just_pressed(key) {
+            let value = s.node_spacing + delta;
+            change_spacing(&mut s, &mut orbit, value);
+        }
+    }
+    if keys.just_pressed(KeyCode::Backslash) {
+        change_spacing(&mut s, &mut orbit, 1.8);
     }
     if keys.just_pressed(KeyCode::Space) {
         s.running = !s.running;
@@ -710,24 +763,9 @@ fn input_commands(
         && cursor.y > 90.0
         && cursor.y < window.height() - 125.0
         && let Ok(ray) = camera.0.viewport_to_world(camera.1, cursor)
+        && let Some(id) = pick(&s, ray.origin, *ray.direction)
     {
-        let direction = *ray.direction;
-        let mut best = None;
-        for id in 0..POPULATION {
-            if s.filters.visible(&s.shown, id) {
-                let delta = position(&s.shown, id) - ray.origin;
-                let t = delta.dot(direction);
-                if t > 0.0
-                    && (delta - direction * t).length() < 0.28
-                    && best.is_none_or(|(_, distance)| t < distance)
-                {
-                    best = Some((id, t));
-                }
-            }
-        }
-        if let Some((id, _)) = best {
-            s.select(id);
-        }
+        s.select(id);
     }
 }
 fn fixed_tick(mut s: ResMut<Session>) {
@@ -753,6 +791,7 @@ fn refresh_scene(
         &NodeId,
         &mut MeshMaterial3d<StandardMaterial>,
         &mut Visibility,
+        &mut Transform,
     )>,
     mut cells: Query<(&PaletteCell, &mut BackgroundColor)>,
     mut status: Single<&mut Text, StatusFilter>,
@@ -762,7 +801,8 @@ fn refresh_scene(
     if !s.dirty {
         return;
     }
-    for (id, mut material, mut visibility) in &mut nodes {
+    for (id, mut material, mut visibility, mut transform) in &mut nodes {
+        transform.translation = position(&s.shown, id.0, s.node_spacing);
         *visibility = if s.filters.visible(&s.shown, id.0) {
             Visibility::Visible
         } else {
@@ -807,7 +847,10 @@ fn refresh_scene(
         "ACTIVITY max-module/channel |u| / FIXED linear 0..1"
     };
     let d = s.shown.diagnostic();
-    let experiment = if s.decay.is_some() {
+    let experiment = if s.experiment5 {
+        let (label, dt) = s.experiment4.as_ref().expect("0005 replay metadata");
+        format!("EXPERIMENT 0005 / CHECKPOINT REPLAY / {label} / dt{dt}")
+    } else if s.decay.is_some() {
         "EXPERIMENT 0004 EXTENSION / FROZEN / A2182 B2186 / AB+".to_string()
     } else {
         s.experiment4.as_ref().map_or_else(
@@ -834,6 +877,10 @@ fn refresh_scene(
         s.filters.region,
         s.entry
     );
+    status.0.push_str(&format!(
+        "\nDisplay spacing {:.1} (visual only) / - = adjust / Backslash default / R camera",
+        s.node_spacing
+    ));
     if s.decay.is_some() {
         status.0.push_str(&format!(
             "\nEVERY TICK / global max|u|={:.4e} max|v|={:.4e} / both <1e-6: {}",
@@ -884,11 +931,28 @@ fn refresh_scene(
     s.dirty = false;
 }
 fn overlays(s: Res<Session>, mut gizmos: Gizmos) {
-    let start = Vec3::splat(-8.5);
-    gizmos.arrow(start, start + Vec3::X * 5.0, Color::srgb(0.95, 0.2, 0.2));
-    gizmos.arrow(start, start + Vec3::Y * 5.0, Color::srgb(0.2, 0.9, 0.4));
-    gizmos.arrow(start, start + Vec3::Z * 5.0, Color::srgb(0.3, 0.5, 1.0));
-    let selected = position(&s.shown, s.selected);
+    let d = s.shown.case.topology.dimensions();
+    let start = Vec3::new(
+        -(d[0] as f32 + 1.) / 2.,
+        -(d[1] as f32 + 1.) / 2.,
+        -(d[2] as f32 + 1.) / 2.,
+    ) * s.node_spacing;
+    gizmos.arrow(
+        start,
+        start + Vec3::X * 5.0 * s.node_spacing,
+        Color::srgb(0.95, 0.2, 0.2),
+    );
+    gizmos.arrow(
+        start,
+        start + Vec3::Y * 5.0 * s.node_spacing,
+        Color::srgb(0.2, 0.9, 0.4),
+    );
+    gizmos.arrow(
+        start,
+        start + Vec3::Z * 5.0 * s.node_spacing,
+        Color::srgb(0.3, 0.5, 1.0),
+    );
+    let selected = position(&s.shown, s.selected, s.node_spacing);
     gizmos.cube(
         Transform::from_translation(selected).with_scale(Vec3::splat(0.45)),
         Color::srgb(1.0, 0.95, 0.45),
@@ -897,7 +961,7 @@ fn overlays(s: Res<Session>, mut gizmos: Gizmos) {
         for j in s.shown.case.topology.neighbors(s.selected) {
             gizmos.line(
                 selected,
-                position(&s.shown, j),
+                position(&s.shown, j, s.node_spacing),
                 Color::srgba(0.4, 0.9, 0.9, 0.7),
             );
         }
@@ -987,8 +1051,17 @@ fn witness_commands(
     s.filters.activity = index % 6 != 3;
     s.dirty = true;
     orbit.yaw += 0.003;
-    orbit.radius = if index.is_multiple_of(2) { 35.0 } else { 38.0 };
-    orbit.target.x = if index.is_multiple_of(3) { 0.5 } else { 0.0 };
+    orbit.radius = fitted_orbit(&s.shown, s.node_spacing).radius
+        * if index.is_multiple_of(2) {
+            1.0
+        } else {
+            38.0 / 35.0
+        };
+    orbit.target.x = if index.is_multiple_of(3) {
+        0.5 * s.node_spacing
+    } else {
+        0.0
+    };
     w.pending = true;
     if w.sample == 1 && [0, total / 2, total - 1].contains(&index) {
         let path = w
@@ -1075,6 +1148,79 @@ fn limit_fps(cap: Res<FrameCap>) {
         std::thread::sleep(Duration::from_secs_f64(1.0 / f64::from(cap.0)));
     }
 }
+fn display_checksum(snapshot: &Snapshot) -> u64 {
+    let mut bytes = b"QR-DISPLAY-RECEIPT-v1".to_vec();
+    for x in [
+        snapshot.tick,
+        snapshot.case.seed,
+        snapshot.case.topology as u64,
+        snapshot.case.configuration as u64,
+        snapshot.case.source as u64,
+        snapshot.case.channel as u64,
+        snapshot.case.drive as u64,
+        u64::from(snapshot.synthetic),
+    ] {
+        bytes.extend_from_slice(&x.to_le_bytes());
+    }
+    for neuron in &snapshot.neurons {
+        for x in [
+            neuron.id,
+            neuron.position[0],
+            neuron.position[1],
+            neuron.position[2],
+        ] {
+            bytes.extend_from_slice(&(x as u64).to_le_bytes());
+        }
+        bytes.extend_from_slice(&neuron.palette);
+        for x in neuron
+            .peak
+            .iter()
+            .chain(&neuron.velocity_peak)
+            .chain(&neuron.module27)
+            .chain(&neuron.velocity27)
+            .chain([&neuron.squared, &neuron.velocity_squared])
+        {
+            bytes.extend_from_slice(&x.to_le_bytes());
+        }
+        bytes.extend_from_slice(&neuron.nonfinite.to_le_bytes());
+    }
+    qr_neural_memory_system::observation::checksum(&bytes)
+}
+#[derive(Resource)]
+struct Capture {
+    path: Option<PathBuf>,
+    ticks: u32,
+}
+fn capture_frame(
+    mut c: ResMut<Capture>,
+    s: Res<Session>,
+    orbit: Res<Orbit>,
+    mut commands: Commands,
+) {
+    let Some(path) = c.path.clone() else {
+        return;
+    };
+    c.ticks += 1;
+    if c.ticks == 30 {
+        commands
+            .spawn(Screenshot::primary_window())
+            .observe(save_to_disk(path.clone()));
+        let receipt = format!(
+            "tick={} snapshot_hash={:016x} spacing={} selected={} position={:?} radius={} engine_instances={}\n",
+            s.shown.tick,
+            display_checksum(&s.shown),
+            s.node_spacing,
+            s.selected,
+            position(&s.shown, s.selected, s.node_spacing),
+            orbit.radius,
+            usize::from(s.live.is_some())
+        );
+        fs::write(path.with_extension("txt"), receipt).expect("capture receipt");
+    }
+    if c.ticks == 60 {
+        commands.write_message(AppExit::Success);
+    }
+}
 fn main() -> io::Result<()> {
     let mut args = std::env::args().skip(1);
     let mut path = PathBuf::from("results/experiment_0003-a/case-0000");
@@ -1085,6 +1231,9 @@ fn main() -> io::Result<()> {
     let mut synthetic = false;
     let mut adapter = None;
     let mut experiment4 = false;
+    let mut experiment5 = false;
+    let mut node_spacing = 1.8_f32;
+    let mut capture = None;
     let mut decay = false;
     let mut decay_audit = None;
     let mut selected = None;
@@ -1131,6 +1280,20 @@ fn main() -> io::Result<()> {
                     .parse::<f64>()
                     .map_err(io::Error::other)?
             }
+            "--node-spacing" => {
+                node_spacing = args
+                    .next()
+                    .ok_or_else(|| io::Error::other("missing spacing"))?
+                    .parse::<f32>()
+                    .map_err(io::Error::other)?
+            }
+            "--capture" => {
+                capture = Some(PathBuf::from(
+                    args.next()
+                        .ok_or_else(|| io::Error::other("missing capture path"))?,
+                ))
+            }
+            "--experiment-0005" => experiment5 = true,
             "--live" => live = true,
             "--experiment-0004" => experiment4 = true,
             "--decay-0004" => {
@@ -1167,9 +1330,15 @@ fn main() -> io::Result<()> {
             _ => return Err(io::Error::other(format!("unknown argument {a}"))),
         }
     }
-    if experiment4 && (live || synthetic || witness.is_some()) {
+    if experiment4 && experiment5 {
+        return Err(io::Error::other("choose one experiment replay mode"));
+    }
+    if !node_spacing.is_finite() || !(1.0..=3.0).contains(&node_spacing) {
+        return Err(io::Error::other("node spacing must be finite in1..3"));
+    }
+    if (experiment4 || experiment5) && (live || synthetic || witness.is_some()) {
         return Err(io::Error::other(
-            "0004 supports measured REPLAY only; LIVE/synthetic/0003 witness prohibited",
+            "0004/0005 support measured REPLAY only; LIVE/synthetic/0003 witness prohibited",
         ));
     }
     if decay_audit.is_some() && !decay {
@@ -1185,6 +1354,9 @@ fn main() -> io::Result<()> {
             Some(("AB+ / EVERY TICK".to_string(), 0.1)),
             Some(replay),
         )
+    } else if experiment5 {
+        let (r, f) = qr_neural_memory_system::morphic_0005::load_replay(&path)?;
+        (r, Some((f.label, f.dt)), None)
     } else if experiment4 {
         let (r, f) = qr_neural_memory_system::propagation_0004::load_replay(&path)?;
         (r, Some((f.arm.name().to_string(), f.dt)), None)
@@ -1207,6 +1379,8 @@ fn main() -> io::Result<()> {
     }
     let mut s = Session::new(recording, live)?;
     s.experiment4 = metadata;
+    s.experiment5 = experiment5;
+    s.node_spacing = node_spacing;
     s.decay = stream;
     if start_frame >= s.frame_count()
         || selected.is_some_and(|id| id >= POPULATION)
@@ -1244,14 +1418,15 @@ fn main() -> io::Result<()> {
     );
     let w = Witness::new(witness, live)?;
     let audit = DecayAudit::new(decay_audit)?;
+    let base_orbit = fitted_orbit(&s.shown, node_spacing);
     let orbit = if camera_b {
         Orbit {
             yaw: -1.4,
             pitch: 0.8,
-            ..default()
+            ..base_orbit
         }
     } else {
-        Orbit::default()
+        base_orbit
     };
     let mut render_settings = bevy::render::settings::WgpuSettings::default();
     if std::env::var_os("WGPU_POWER_PREF").is_none() {
@@ -1259,6 +1434,10 @@ fn main() -> io::Result<()> {
     }
     render_settings.adapter_name = adapter;
     App::new()
+        .insert_resource(Capture {
+            path: capture,
+            ticks: 0,
+        })
         .insert_resource(s)
         .insert_resource(w)
         .insert_resource(audit)
@@ -1270,7 +1449,9 @@ fn main() -> io::Result<()> {
             DefaultPlugins
                 .set(WindowPlugin {
                     primary_window: Some(Window {
-                        title: if experiment4 {
+                        title: if experiment5 {
+                            "QR Neural Network | Experiment 0005 Checkpoint Replay"
+                        } else if experiment4 {
                             "QR Neural Network | Experiment 0004 Frozen Medium"
                         } else {
                             "QR Neural Network | Experiment 0003 Observatory"
@@ -1302,7 +1483,7 @@ fn main() -> io::Result<()> {
             )
                 .chain(),
         )
-        .add_systems(Last, (audit_decay, limit_fps).chain())
+        .add_systems(Last, (audit_decay, capture_frame, limit_fps).chain())
         .run();
     Ok(())
 }
@@ -1310,6 +1491,50 @@ fn main() -> io::Result<()> {
 mod tests {
     use super::*;
     use qr_neural_memory_system::lattice::Case;
+    #[test]
+    fn spacing_is_pure_display_and_picking_uses_display_endpoints() {
+        use qr_neural_memory_system::topology::Topology;
+        for topology in [Topology::Cubic6, Topology::Cubic26, Topology::Grid2D8] {
+            let snapshot = Lattice::new(Case {
+                topology,
+                ..Case::default()
+            })
+            .unwrap()
+            .observe();
+            let original = snapshot.encode().unwrap();
+            let mut session = Session::new(
+                Recording {
+                    frames: vec![snapshot.clone()],
+                },
+                false,
+            )
+            .unwrap();
+            let mut orbit = fitted_orbit(&snapshot, session.node_spacing);
+            for spacing in [1.0, 1.8, 3.0] {
+                change_spacing(&mut session, &mut orbit, spacing);
+                assert_eq!(session.shown.encode().unwrap(), original);
+                session.filters.axis = Some(2);
+                session.filters.plane = snapshot.neurons[2184].position[2];
+                let selected = position(&snapshot, 2184, spacing);
+                assert_eq!(
+                    pick(&session, selected + Vec3::Z * 100., -Vec3::Z),
+                    Some(2184)
+                );
+                for other in topology.neighbors(2184) {
+                    let from = position(&snapshot, 2184, spacing);
+                    let to = position(&snapshot, other, spacing);
+                    let raw = Vec3::from_array(snapshot.neurons[other].position.map(|x| x as f32))
+                        - Vec3::from_array(snapshot.neurons[2184].position.map(|x| x as f32));
+                    assert!((to - from - raw * spacing).length() < 1e-4);
+                    assert_eq!(topology.hops(2184, other), 1);
+                }
+                assert!(fitted_orbit(&snapshot, spacing).radius > 15. * spacing);
+            }
+            let byte_check = session.shown.encode().unwrap();
+            change_spacing(&mut session, &mut orbit, 1.8);
+            assert_eq!(session.shown.encode().unwrap(), byte_check);
+        }
+    }
     #[test]
     fn selection_filters_and_seek_do_not_execute_engine() {
         let mut engine = Lattice::new(Case::default()).unwrap();

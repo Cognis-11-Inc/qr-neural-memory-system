@@ -77,7 +77,7 @@ jobs:
       - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
         with:
           python-version: ${{ matrix.python }}
-      - run: python -m pip install -r requirements-dev.txt
+      - run: python -m pip install -r requirements-dev.txt -r requirements-analysis.txt
       - run: python -m ruff format --check .
       - run: python -m ruff check .
       - run: python -W error -m unittest discover -s analysis -t . -v

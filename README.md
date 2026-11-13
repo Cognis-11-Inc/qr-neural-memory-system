@@ -187,3 +187,26 @@ CI additionally sets `RUSTFLAGS='-D warnings'`. Workflow: [Severe CI](https://gi
 
 The isolated viewer additionally has a headless compilation/test CI job; it does
 not open a window or establish native rendering correctness on GitHub runners.
+
+## Experiment 0005: morphic response and energy audit
+
+[Registration](EXPERIMENT_0005.md) freezes a new second-order split integrator,
+actual mechanical energy accounting, paired spatial palettes and bounded local
+plasticity/re-exposure. Prior experiments stay unchanged. Install the independent
+analyzer with `.venv/bin/python -m pip install -r requirements-analysis.txt`.
+
+```sh
+cargo run --locked --release --bin experiment_0005 -- results/my-0005 numerical
+.venv/bin/python -m analysis.experiment_0005 results/my-0005 --stage numerical
+cargo run --locked --release --bin experiment_0005 -- results/my-0005 a
+# B requires the long-window gate; C requires the time-32 gate.
+cargo run --locked --release --bin experiment_0005 -- results/my-0005 c
+.venv/bin/python -m analysis.experiment_0005 results/my-0005
+CARGO_BUILD_JOBS=1 cargo run --locked --manifest-path viewer/Cargo.toml -- --experiment-0005 --recording results/my-0005/a-heterogeneous-7-AB+ --node-spacing 1.8 --select 2184
+```
+
+Each stage requires a fresh ledger; completed case folders are never overwritten.
+A separate `repeat` stage in a fresh root repeats heterogeneous7 AB+ for exact
+comparison. `b` is intentionally rejected if the long-window numerical gate fails.
+See [record schema](docs/EXPERIMENT_0005_SCHEMA.md) and the results report for
+execution coverage. Scientific gate failure is separate from software test success.

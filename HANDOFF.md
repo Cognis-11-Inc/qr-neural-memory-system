@@ -393,3 +393,30 @@ shape-sensitive cue binding and persistent plasticity if usable signals exist.
 The present color-offset rule cannot route arbitrary source shapes into target
 shapes. Capacity, resilient recall, live visualization, and a general-purpose
 memory engine remain future work.
+
+## Experiment 0005 implementation checkpoint (2026-11-13)
+
+User authorized `/home/cognis/Downloads/EXPERIMENT_0005_CODEX_COMMAND.md` as the
+next slice, including implementation, measurements, native spacing and push.
+Registration frozen in `5b97a75` before data; protected44-file SHA receipt is
+`docs/EXPERIMENT_0005_PROTECTED_SHA256.txt`. No old experiment file changed.
+New engine/runner: `morphic_0005`, `experiment_0005`; independent NumPy analyzer
+and schema document. Native default spacing1.8,CLI1..3,Minus/Equal and Backslash,
+scaled picking/edges/axes/camera;0005 replay-only. No GPU physics.
+
+M5-0 complete12runs. Energy audit and time32 gate pass; long-window gate FAILS
+for both configurations. Coarse/fine homogeneous errors12.18%/3.04% at102.4,
+36.38%/9.13% at307.2;error ratio~.25. Registration requires BOTH grids,so M5-B
+is gated/unexecuted;do not retune criteria. M5-A25runs and M5-C14short-window
+runs executed;independent final verification/results packaging underway at this
+checkpoint. Representative A repeat matches all case bytes. Ignored outputs:
+`results/experiment_0005`, `results/experiment_0005-repeat`.
+
+Local checks at this checkpoint:27root tests,17Python tests,2viewer tests,
+strict Clippy/Ruff,format,root release/docs/doctests/Python compilation pass.
+Native before/after0003 audits match byte-for-byte;Raphael iGPU,Vulkan/radv,
+Mesa26.2.6,XWayland. Actual0005 native capture succeeds after correcting a
+capture-receipt call that incorrectly used0003's tick<=160 encoder. The failed
+attempt/log is retained;no old schema was broadened. Scientific data unchanged.
+Remaining:final independent decisions,portable bundle,scientific report,final
+staged diff/preservation checks,push/remote and hosted CI evidence.

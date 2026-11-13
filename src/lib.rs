@@ -6,6 +6,7 @@ pub mod experiment_0002;
 pub mod experiment_0003;
 pub mod experiment_0004;
 pub mod lattice;
+pub mod morphic_0005;
 pub mod observation;
 pub mod propagation_0004;
 pub mod topology;
