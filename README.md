@@ -23,6 +23,13 @@ A learned association is represented by persistent, experience-dependent changes
 
 See [PRINCIPLES.md](PRINCIPLES.md) for the design consequences.
 
+**Morphic QR Neuron Principle 002 is proposed:** intrinsic response and neighbor
+exchange govern excitation, internal morphology governs reception/retention/
+transmission, and sustained interactions may change morphology under an explicit
+plasticity law. The [full proposed wording and experimental consequences](PRINCIPLES.md#morphic-qr-neuron-principle-002--proposed)
+keep transient excitation distinct from persistent memory. Existing frozen-medium
+experiments do not implement that proposed plasticity mechanism.
+
 ## Hypothesis R1: distributed resilience
 
 Associations encoded through overlapping, persistent changes across multiple QR neurons can remain retrievable after partial loss or corruption of the substrate.

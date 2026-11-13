@@ -25,6 +25,13 @@ measured experiment failures, replay, and hosted delivery evidence.
 - Principle 001: associations must be investigated as persistent,
   experience-dependent changes distributed across neurons. No neuron owns a
   complete association. Retrieval must emerge from explicit local interactions.
+- On 2026-11-13 the user proposed **Morphic QR Neuron Principle 002**. Its exact
+  wording is in `PRINCIPLES.md`: intrinsic response and neighbor exchange govern
+  excitation, morphology governs reception/retention/transmission, and sustained
+  interaction may change morphology under an explicit plasticity law. Status is
+  proposed; no existing experiment or rule is amended. Retaining excitation is
+  distinct from persistent memory; squared-field proxies are not a physical
+  energy balance. Plasticity remains a separately registered future mechanism.
 - R1 distributed resilience remains untested. Graceful degradation is a target;
   no lesion experiment follows until intact retrieval works. The proposed R1
   protocol is `EXPERIMENT_R1.md`.
