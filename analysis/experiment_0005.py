@@ -311,6 +311,97 @@ def numerical_decision(root, audited):
     )
 
 
+def planned_cases():
+    """Exact frozen matrix, including conditions gated before execution."""
+    planned = []
+    for name in ("homogeneous", "heterogeneous", "undamped", "force"):
+        for dt in (0.1, 0.05, 0.025):
+            end = 16 if name == "force" else 32 if name == "undamped" else 307.2
+            planned.append((f"n-{name}-{dt}", "M5-0", dt, end))
+    for seed, config in (
+        (7, "homogeneous"),
+        (7, "heterogeneous"),
+        (19, "heterogeneous"),
+        (7, "rearranged"),
+        (19, "rearranged"),
+    ):
+        for arm in ("A", "B", "AB+", "AB-", "zero"):
+            planned.append((f"a-{config}-{seed}-{arm}", "M5-A", 0.05, 32))
+    for config, arm in (("homogeneous", "AB+"), ("heterogeneous", "AB+"), ("heterogeneous", "AB-")):
+        for sponge in ("false", "true"):
+            planned.append((f"b-{config}-{arm}-{sponge}", "M5-B", 0.05, 307.2))
+    for dt in (0.05, 0.025):
+        for mode in (
+            "frozen",
+            "disabled",
+            "local",
+            "time",
+            "zero",
+            "reexpose-local",
+            "reexpose-time",
+        ):
+            end = 16 if mode in ("local", "time", "zero") else 32
+            planned.append((f"c-{mode}-{dt}", "M5-C", dt, end))
+    return planned
+
+
+def coverage(root, stage, output):
+    present = {r["id"]: r for r in output["runs"]}
+    with (root / "execution-ledger.csv").open("w") as stream:
+        writer = csv.writer(stream)
+        writer.writerow(("id", "stage", "dt", "end", "status", "reason"))
+        for ident, group, dt, end in planned_cases():
+            result = present.get(ident)
+            if result:
+                require(result["ticks"] == round(end / dt) + 1, "registered horizon coverage")
+                expected = sum(t <= end for t in CHECKPOINTS)
+                require(result["frames"] == expected, "checkpoint coverage")
+                status, reason = "COMPLETE", "execution is not scientific success"
+            else:
+                gate = output.get("numerical", {})
+                gated = (group == "M5-B" and not gate.get("passed", False)) or (
+                    group == "M5-C" and not gate.get("short_window_pass", False)
+                )
+                if stage == "all":
+                    require(gated, "missing required condition " + ident)
+                elif group == "M5-0":
+                    require(False, "missing numerical condition " + ident)
+                status, reason = (
+                    ("GATED", "registered numerical accuracy failure")
+                    if gated
+                    else ("NOT_RUN", "outside selected verification stage")
+                )
+            writer.writerow((ident, group, dt, end, status, reason))
+
+
+def audit_transitions(root):
+    result = []
+    for folder in sorted((root / "transition-audit").glob("c-*")):
+        require((folder / "COMPLETE").exists(), "incomplete switch audit")
+        pre, post = decode(folder / "pre.q5f"), decode(folder / "post.q5f")
+        require(
+            np.array_equal(pre["u"], post["u"]) and np.array_equal(pre["v"], post["v"]),
+            "switch altered transients",
+        )
+        require(
+            pre["tick"] == post["tick"] and abs(pre["tick"] * pre["dt"] - 8) < 1e-9, "switch time"
+        )
+        before = sum(energy(pre["palette"], pre["u"], pre["v"])[:3])
+        after = sum(energy(post["palette"], post["u"], post["v"])[:3])
+        transition = rows(root / folder.name / "switch.csv")[0]
+        require(
+            abs(before - float(transition["pre_energy"])) < 1e-10, "independent switch pre-energy"
+        )
+        require(
+            abs(after - float(transition["post_energy"])) < 1e-10, "independent switch post-energy"
+        )
+        require(abs(after - before - float(transition["work"])) < 1e-10, "independent switch work")
+        result.append(
+            dict(id=folder.name, pre_energy=before, post_energy=after, switch_work=after - before)
+        )
+    return result
+
+
 def verify(root, stage):
     rules = (root / "RULES.md").read_bytes()
     require(rules == Path("EXPERIMENT_0005.md").read_bytes(), "frozen registration differs")
@@ -326,7 +417,7 @@ def verify(root, stage):
     cache.mkdir(exist_ok=True)
     for folder in folders:
         saved = cache / f"{folder.name}.json"
-        digest = hashlib.sha256()
+        digest = hashlib.sha256(Path(__file__).read_bytes())
         for file in sorted(folder.iterdir()):
             if file.is_file():
                 digest.update(file.name.encode())
@@ -345,6 +436,8 @@ def verify(root, stage):
         output["numerical"] = numerical_decision(root, audited)
     if stage != "numerical":
         output.update(compare_stages(root, audited))
+    output["transition_energy_audits"] = audit_transitions(root)
+    coverage(root, stage, output)
     if "numerical" in output:
         gate = output["numerical"]
         (root / "NUMERICAL_GATES.csv").write_text(

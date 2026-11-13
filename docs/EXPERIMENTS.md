@@ -8,6 +8,7 @@
 | 0003 | How do volumetric topology and configuration affect dynamics, and can a viewer reproduce measured state? | Implemented and measured: 111 cases × two identical runs; native iGPU viewer verified | [Frozen registration](../EXPERIMENT_0003.md) | [Results and instrument checks](EXPERIMENT_0003_RESULTS.md) |
 | 0004 | Do extended dual-source fields obey signed superposition in a frozen medium? | Measured: superposition within roundoff; 0/8 long-window timestep screens pass | [Frozen registration](../EXPERIMENT_0004.md) | [Results and signed fields](EXPERIMENT_0004_RESULTS.md) |
 | 0004 extension | Does the current frozen AB+ signal decay over 3,072 ticks, observed every tick? | Measured: 3,073 frames; 494-tick final quiet tail, nonzero signal; prior accuracy limitation retained | [Extension registration](../EXPERIMENT_0004_EXTENSION.md) | [Results and portable report](EXPERIMENT_0004_EXTENSION_RESULTS.md) |
+| 0005 | Can spatial morphology and a bounded local rule change excitation and subsequent response? | Short energy/linearity/persistent response checks pass; long numerical gate fails; M5-B gated | [Frozen registration](../EXPERIMENT_0005.md) | [Results and limits](EXPERIMENT_0005_RESULTS.md) |
 | R1 | Does a working distributed association survive partial loss? | Proposed; intact retrieval prerequisite unmet | [Proposed protocol](../EXPERIMENT_R1.md) | No resilience measurements |
 
 Experiments 0001/0002's sources, parameters, results, and raw evidence remain
@@ -39,3 +40,5 @@ is a completed research deliverable.
   in `2c39004`; two byte-identical3,073-frame runs,12original-prefix comparisons,
   independently verified native every-tick replay. Quiet tail begins2579;
   no exact zero or converged-physical-model claim. Portable agent report added.
+
+- 2026-11-13: 0005 registered in `5b97a75`, before data. 12 numerical, 25 frozen, 14 short adaptive/control cases; one identical frozen repeat. Long-window gate fails, so additional M5-B/boundary cases remain unexecuted. Both short adaptive grids produce the same 63 edits and persistent causal response after transient reset; no associative memory result. Viewer display spacing 1.8 verified natively with unchanged observation audits.

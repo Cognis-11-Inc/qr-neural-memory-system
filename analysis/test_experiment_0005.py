@@ -7,7 +7,15 @@ from pathlib import Path
 
 import numpy as np
 
-from analysis.experiment_0005 import FIELDS, coefficients, decode, energy, field_error, fnv
+from analysis.experiment_0005 import (
+    FIELDS,
+    coefficients,
+    coverage,
+    decode,
+    energy,
+    field_error,
+    fnv,
+)
 
 
 class MorphicTests(unittest.TestCase):
@@ -26,6 +34,13 @@ class MorphicTests(unittest.TestCase):
         palette[2182, 3, 2], palette[2182, 0, 0] = 1, 0
         other, _, _ = coefficients(palette)
         self.assertNotEqual(omega[2182, 3, 3], other[2182, 3, 3])
+
+    def test_missing_confirmatory_conditions_are_rejected(self):
+        with (
+            tempfile.TemporaryDirectory() as tmp,
+            self.assertRaisesRegex(ValueError, "missing numerical condition"),
+        ):
+            coverage(Path(tmp), "numerical", {"runs": []})
 
     def test_qr5_exact_decode_and_corruption_rejection(self):
         label = b"test"

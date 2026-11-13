@@ -186,11 +186,11 @@ with metadata, rules, every-tick CSVs and all-neuron summaries. See the
 ## Display spacing and Experiment 0005
 
 Default node-center spacing is now **1.8**, with unchanged glyph size. Set
-`--node-spacing 1.0` for the old spacing, or any finite value1.0–3.0. During use,
-`-` / `=` change spacing by0.1; Backslash restores1.8; R fits/resets the camera
+`--node-spacing 1.0` for the old spacing, or any finite value 1.0–3.0. During use,
+`-` / `=` change spacing by 0.1; Backslash restores 1.8; R fits/resets the camera
 at the current spacing. Zoom and pan remain available. These controls scale
-node centers,picking,selected edges and axes together. Slices still use integer
-coordinates. Graph hops,couplings,timestep,source distance and exported states
+node centers, picking, selected edges and axes together. Slices still use integer
+coordinates. Graph hops, couplings, timestep, source distance and exported states
 are unchanged; a wider screen lattice is not a physically more distant graph.
 Camera fitting also accommodates Grid2D8 and Cubic26.
 
@@ -199,13 +199,13 @@ CARGO_BUILD_JOBS=1 cargo run --locked --manifest-path viewer/Cargo.toml -- --exp
 ```
 
 0005 is **checkpoint REPLAY ONLY**, with its own validated QR5 files and identity;
-LIVE,synthetic and old0003-witness substitution are rejected. Space plays saved
-checkpoints;Right/Left seek;the displayed time uses actual dt/tick and checkpoint
+LIVE, synthetic and old 0003-witness substitution are rejected. Space plays saved
+checkpoints; Right/Left seek; the displayed time uses actual dt/tick and checkpoint
 intervals are unequal. It is not an every-tick animation or a physics restart.
-The same spacing controls work in0003,0004,and every-tick decay modes.
+The same spacing controls work in 0003, 0004, and every-tick decay modes.
 
 Optional `--capture results/capture.png` saves an actual native screenshot after
-30application updates,a sibling text receipt (tick,full observation checksum,
-spacing,selected world position,camera radius,engine count),then exits at60.
+30 application updates, a sibling text receipt (tick, full observation checksum,
+spacing, selected world position, camera radius, engine count), then exits at 60.
 The receipt uses `QR-DISPLAY-RECEIPT-v1` FNV over scientific observation fields;
 it excludes display spacing/camera. It is not a sustained-FPS measurement.

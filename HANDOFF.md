@@ -420,3 +420,46 @@ capture-receipt call that incorrectly used0003's tick<=160 encoder. The failed
 attempt/log is retained;no old schema was broadened. Scientific data unchanged.
 Remaining:final independent decisions,portable bundle,scientific report,final
 staged diff/preservation checks,push/remote and hosted CI evidence.
+
+## Experiment 0005 measured delivery (2026-11-13)
+
+Registration `5b97a75`, implementation `a7da357`; no design amendments or tuning.
+M5-0:12 runs; M5-A:25; M5-C:14; one byte-identical frozen repeat. Four additional
+short deterministic transition audits match primary local histories and time16
+full-state bytes, and independently reconstruct the switching work. Primary data
+contain72,979 global ticks/258 signed checkpoints; supplemental switch data add8
+frames. Final analyzer binds cache receipts to its source as well as input bytes.
+
+Short energy/accuracy gate passes. Long gate FAILS for both morphology fixtures;
+M5-B's4 new long/sponge runs are unexecuted, with2 existing open references.
+No absorption, reflection attribution or converged long-time result. Stage C is
+explicitly gated by its applicable time32 checks, not the failed long gate.
+
+Both C grids (.05/.025) produce identical63 edits, all module27, spanning graph
+hops0..4 from A. Source A changes4->0. Frozen-Pafter response after complete
+transient reset differs from virgin by~108% at16 and~118% at32; registered
+short persistent-response criterion passes. This is not learned association or
+R1. Initial stored energy differs despite identical unit displacement. Switching
+removes~.136 energy, explicitly accounted; adaptive model is externally actuated.
+Generic-time control edits4096 modules and is not edit-count matched. No ablation
+establishes necessity of off-source edits. See full new results report.
+
+Local final checks:27 Rust,18 Python,2 viewer tests; strict Clippy/Ruff,format,
+root release/docs/doctests,Python compile and isolated native build pass. All44
+protected historical hashes match. Native before/after0003 audit CSVs match
+byte-for-byte; actual0005,0004 and decay captures succeed at spacing1.8 with0
+replay engines. Raphael iGPU,Vulkan/radv,Mesa26.2.6,XWayland;30FPS cap in witnesses
+is configured,not measured sustained FPS. New display checksum fixes the retained
+failed first0005 capture attempt without broadening frozen old schemas.
+
+Scientific report: `docs/EXPERIMENT_0005_RESULTS.md`. Ignored numerical/portable
+outputs: `results/experiment_0005/AGENT_REPORT.zip` and `FULL_FIELDS.zip`, plus
+`verification.json`, `execution-ledger.csv`, all actual palettes/local histories,
+all4096 before/after JSONL records, CSVs, schema/source/rule/SHA receipts. ZIP CRC
+and member SHA checks cover both packages. Delivery copies go in Downloads;
+check the later receipt for exact hashes and hosted CI/remote evidence.
+
+Next bounded research requires a NEW long-window refinement registration, then
+boundary controls. A source-held-fixed/off-source ablation is a separate question.
+Do not resume gated B without a new design; do not retroactively change the old
+0/8 convergence failure or this experiment's thresholds.

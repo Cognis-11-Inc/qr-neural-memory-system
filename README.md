@@ -206,7 +206,12 @@ CARGO_BUILD_JOBS=1 cargo run --locked --manifest-path viewer/Cargo.toml -- --exp
 ```
 
 Each stage requires a fresh ledger; completed case folders are never overwritten.
-A separate `repeat` stage in a fresh root repeats heterogeneous7 AB+ for exact
+A separate `repeat` stage in a fresh root repeats heterogeneous 7 AB+ for exact
 comparison. `b` is intentionally rejected if the long-window numerical gate fails.
 See [record schema](docs/EXPERIMENT_0005_SCHEMA.md) and the results report for
 execution coverage. Scientific gate failure is separate from software test success.
+
+[Experiment 0005 measured results](docs/EXPERIMENT_0005_RESULTS.md): short-window
+persistent response passes; long-window accuracy fails and M5-B remains gated.
+The same 63 local edits survive transient reset at both registered grids. This
+is not associative memory. Portable data live under ignored `results/experiment_0005`.
